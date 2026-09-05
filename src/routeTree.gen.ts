@@ -12,9 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedElectriciansRouteImport } from './routes/_authenticated/electricians'
 import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
+import { Route as AuthenticatedSettlementRouteImport } from './routes/_authenticated/settlement'
 import { Route as AuthenticatedElectricianLedgerRouteImport } from './routes/_authenticated/electrician/ledger'
+import { Route as AuthenticatedLedgerElectricianIdRouteImport } from './routes/_authenticated/ledger/$electricianId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -30,14 +34,30 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedBillingRoute = AuthenticatedBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedElectriciansRoute =
+  AuthenticatedElectriciansRouteImport.update({
+    id: '/electricians',
+    path: '/electricians',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedInventoryRoute = AuthenticatedInventoryRouteImport.update({
   id: '/inventory',
   path: '/inventory',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSettlementRoute = AuthenticatedSettlementRouteImport.update({
+  id: '/settlement',
+  path: '/settlement',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedElectricianLedgerRoute =
@@ -46,43 +66,83 @@ const AuthenticatedElectricianLedgerRoute =
     path: '/electrician/ledger',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedLedgerElectricianIdRoute =
+  AuthenticatedLedgerElectricianIdRouteImport.update({
+    id: '/ledger/$electricianId',
+    path: '/ledger/$electricianId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/billing': typeof AuthenticatedBillingRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/electricians': typeof AuthenticatedElectriciansRoute
   '/inventory': typeof AuthenticatedInventoryRoute
+  '/settlement': typeof AuthenticatedSettlementRoute
   '/electrician/ledger': typeof AuthenticatedElectricianLedgerRoute
+  '/ledger/$electricianId': typeof AuthenticatedLedgerElectricianIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/billing': typeof AuthenticatedBillingRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/electricians': typeof AuthenticatedElectriciansRoute
   '/inventory': typeof AuthenticatedInventoryRoute
+  '/settlement': typeof AuthenticatedSettlementRoute
   '/electrician/ledger': typeof AuthenticatedElectricianLedgerRoute
+  '/ledger/$electricianId': typeof AuthenticatedLedgerElectricianIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/billing': typeof AuthenticatedBillingRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/electricians': typeof AuthenticatedElectriciansRoute
   '/_authenticated/inventory': typeof AuthenticatedInventoryRoute
+  '/_authenticated/settlement': typeof AuthenticatedSettlementRoute
   '/_authenticated/electrician/ledger': typeof AuthenticatedElectricianLedgerRoute
+  '/_authenticated/ledger/$electricianId': typeof AuthenticatedLedgerElectricianIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/dashboard' | '/inventory' | '/electrician/ledger'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/billing'
+    | '/dashboard'
+    | '/electricians'
+    | '/inventory'
+    | '/settlement'
+    | '/electrician/ledger'
+    | '/ledger/$electricianId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/dashboard' | '/inventory' | '/electrician/ledger'
+  to:
+    | '/'
+    | '/auth'
+    | '/billing'
+    | '/dashboard'
+    | '/electricians'
+    | '/inventory'
+    | '/settlement'
+    | '/electrician/ledger'
+    | '/ledger/$electricianId'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/billing'
     | '/_authenticated/dashboard'
+    | '/_authenticated/electricians'
     | '/_authenticated/inventory'
+    | '/_authenticated/settlement'
     | '/_authenticated/electrician/ledger'
+    | '/_authenticated/ledger/$electricianId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -114,11 +174,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/billing': {
+      id: '/_authenticated/billing'
+      path: '/billing'
+      fullPath: '/billing'
+      preLoaderRoute: typeof AuthenticatedBillingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/electricians': {
+      id: '/_authenticated/electricians'
+      path: '/electricians'
+      fullPath: '/electricians'
+      preLoaderRoute: typeof AuthenticatedElectriciansRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/inventory': {
@@ -128,6 +202,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInventoryRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/settlement': {
+      id: '/_authenticated/settlement'
+      path: '/settlement'
+      fullPath: '/settlement'
+      preLoaderRoute: typeof AuthenticatedSettlementRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/electrician/ledger': {
       id: '/_authenticated/electrician/ledger'
       path: '/electrician/ledger'
@@ -135,19 +216,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedElectricianLedgerRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ledger/$electricianId': {
+      id: '/_authenticated/ledger/$electricianId'
+      path: '/ledger/$electricianId'
+      fullPath: '/ledger/$electricianId'
+      preLoaderRoute: typeof AuthenticatedLedgerElectricianIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedElectriciansRoute: typeof AuthenticatedElectriciansRoute
   AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
+  AuthenticatedSettlementRoute: typeof AuthenticatedSettlementRoute
   AuthenticatedElectricianLedgerRoute: typeof AuthenticatedElectricianLedgerRoute
+  AuthenticatedLedgerElectricianIdRoute: typeof AuthenticatedLedgerElectricianIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedBillingRoute: AuthenticatedBillingRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedElectriciansRoute: AuthenticatedElectriciansRoute,
   AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,
+  AuthenticatedSettlementRoute: AuthenticatedSettlementRoute,
   AuthenticatedElectricianLedgerRoute: AuthenticatedElectricianLedgerRoute,
+  AuthenticatedLedgerElectricianIdRoute: AuthenticatedLedgerElectricianIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
