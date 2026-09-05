@@ -1,19 +1,31 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
-  beforeLoad: async ({ location }) => {
-    // Auth state is checked client-side via the AuthProvider.
-    // This layout relies on the AuthProvider being mounted in __root.tsx.
-    // We defer the actual redirect to the component to avoid SSR issues.
-    return { location };
-  },
   component: AuthenticatedLayout,
 });
 
 function AuthenticatedLayout() {
+  const navigate = useNavigate();
   const { isLoading, isAuthenticated, isOwner, isElectrician } = useAuth();
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    if (!isAuthenticated) {
+      navigate({ to: "/auth", replace: true });
+      return;
+    }
+
+    if (isElectrician && !isOwner) {
+      const path = window.location.pathname;
+      if (!path.startsWith("/electrician")) {
+        navigate({ to: "/electrician/ledger", replace: true });
+      }
+    }
+  }, [isLoading, isAuthenticated, isOwner, isElectrician, navigate]);
 
   if (isLoading) {
     return (
@@ -24,14 +36,7 @@ function AuthenticatedLayout() {
   }
 
   if (!isAuthenticated) {
-    throw redirect({ to: "/auth" });
-  }
-
-  if (isElectrician && !isOwner) {
-    const path = window.location.pathname;
-    if (!path.startsWith("/electrician")) {
-      throw redirect({ to: "/electrician/ledger" });
-    }
+    return null;
   }
 
   return <Outlet />;
