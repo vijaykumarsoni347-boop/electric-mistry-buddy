@@ -108,11 +108,7 @@ function BillingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <header className="border-b bg-card p-4">
-        <h1 className="text-xl font-bold">Billing / POS</h1>
-      </header>
-
+    <OwnerShell title="Billing / POS">
       <main className="p-4 grid gap-4 lg:grid-cols-2">
         <div className="space-y-3">
           <h2 className="font-semibold">Products</h2>
