@@ -86,13 +86,13 @@ function ElectriciansPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
-      <header className="border-b bg-card p-4 flex items-center justify-between">
-        <h1 className="text-xl font-bold">Mistri Directory</h1>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" onClick={() => setEditing(null)}>+ Naya Mistri</Button>
-          </DialogTrigger>
+    <OwnerShell title="Mistri Directory">
+      <main className="p-4 space-y-3">
+        <div className="flex justify-end">
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" onClick={() => setEditing(null)}>+ Naya Mistri</Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{editing ? "Edit Mistri" : "Naya Mistri"}</DialogTitle>
