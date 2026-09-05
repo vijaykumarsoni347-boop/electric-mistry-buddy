@@ -53,11 +53,7 @@ function SettlementPage() {
   const totalBalance = settlement?.reduce((sum, s) => sum + s.balance, 0) || 0;
 
   return (
-    <div className="min-h-screen bg-background pb-20">
-      <header className="border-b bg-card p-4">
-        <h1 className="text-xl font-bold">Daily Settlement</h1>
-      </header>
-
+    <OwnerShell title="Daily Settlement">
       <main className="p-4 space-y-4">
         <div>
           <Label>Date</Label>
