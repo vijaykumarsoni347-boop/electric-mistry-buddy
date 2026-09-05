@@ -133,9 +133,7 @@ function ElectriciansPage() {
             </form>
           </DialogContent>
         </Dialog>
-      </header>
-
-      <main className="p-4 space-y-3">
+        </div>
         {isLoading ? (
           <p>Loading...</p>
         ) : (
