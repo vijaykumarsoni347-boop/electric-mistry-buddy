@@ -169,7 +169,7 @@ function ProductForm({
   editing,
 }: {
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-  editing: ReturnType<typeof useState>[0];
+  editing: EditingProduct | null;
 }) {
   return (
     <form onSubmit={onSubmit} className="space-y-3 pt-2">
