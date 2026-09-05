@@ -28,16 +28,7 @@ export const Route = createFileRoute("/_authenticated/inventory")({
 function InventoryPage() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
-  const [editing, setEditing] = useState<{
-    id: string;
-    name: string;
-    sku: string;
-    category: string;
-    stock_quantity: number;
-    wholesale_price: number;
-    retail_price: number;
-    low_stock_threshold: number;
-  } | null>(null);
+  const [editing, setEditing] = useState<EditingProduct | null>(null);
 
   const { data: products, isLoading } = useQuery({
     queryKey: ["products"],
