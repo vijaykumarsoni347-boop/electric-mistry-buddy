@@ -203,13 +203,19 @@ export const createSale = createServerFn({ method: "POST" })
     }
 
     for (const item of data.items) {
-      const { error: stockError } = await context.supabase.rpc("decrement_stock", {
-        product_id: item.product_id,
-        quantity: item.quantity,
-      });
-      if (stockError) {
-        throw new Error(stockError.message);
-      }
+      const { data: product, error: productError } = await context.supabase
+        .from("products")
+        .select("stock_quantity")
+        .eq("id", item.product_id)
+        .single();
+      if (productError) throw new Error(productError.message);
+
+      const newStock = (product?.stock_quantity || 0) - item.quantity;
+      const { error: stockError } = await context.supabase
+        .from("products")
+        .update({ stock_quantity: newStock })
+        .eq("id", item.product_id);
+      if (stockError) throw new Error(stockError.message);
     }
 
     return { id: sale.id };
