@@ -137,6 +137,6 @@ function SettlementPage() {
           </div>
         )}
       </main>
-    </div>
+    </OwnerShell>
   );
 }
