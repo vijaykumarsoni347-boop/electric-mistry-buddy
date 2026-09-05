@@ -184,6 +184,6 @@ function ElectriciansPage() {
           ))
         )}
       </main>
-    </div>
+    </OwnerShell>
   );
 }
