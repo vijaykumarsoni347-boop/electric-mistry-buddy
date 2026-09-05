@@ -86,23 +86,21 @@ function InventoryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
-      <header className="border-b bg-card p-4 flex items-center justify-between">
-        <h1 className="text-xl font-bold">Inventory</h1>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" onClick={() => setEditing(null)}>+ Naya Product</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{editing ? "Edit Product" : "Naya Product"}</DialogTitle>
-            </DialogHeader>
-            <ProductForm onSubmit={handleSubmit} editing={editing} />
-          </DialogContent>
-        </Dialog>
-      </header>
-
+    <OwnerShell title="Inventory">
       <main className="p-4 space-y-3">
+        <div className="flex justify-end">
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" onClick={() => setEditing(null)}>+ Naya Product</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{editing ? "Edit Product" : "Naya Product"}</DialogTitle>
+              </DialogHeader>
+              <ProductForm onSubmit={handleSubmit} editing={editing} />
+            </DialogContent>
+          </Dialog>
+        </div>
         {isLoading ? (
           <p>Loading...</p>
         ) : (
