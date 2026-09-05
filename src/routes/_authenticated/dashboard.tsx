@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { getDashboardSummary } from "@/lib/shop.functions";
+import { OwnerShell } from "@/components/owner-shell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Package, ShoppingCart, Users, ClipboardList } from "lucide-react";
@@ -17,13 +18,12 @@ function DashboardPage() {
   });
 
   return (
-    <div className="min-h-screen bg-background pb-20">
-      <header className="border-b bg-card p-4">
-        <h1 className="text-xl font-bold">Aaj ka Hisaab</h1>
+    <OwnerShell title="Aaj ka Hisaab">
+      <div className="p-4 pb-2">
         <p className="text-sm text-muted-foreground">{new Date().toLocaleDateString("hi-IN")}</p>
-      </header>
+      </div>
 
-      <main className="p-4 space-y-4">
+      <main className="p-4 pt-0 space-y-4">
         {isLoading ? (
           <p>Loading...</p>
         ) : (
