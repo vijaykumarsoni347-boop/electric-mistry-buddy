@@ -150,7 +150,7 @@ function InventoryPage() {
           ))
         )}
       </main>
-    </div>
+    </OwnerShell>
   );
 }
 
