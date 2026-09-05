@@ -90,7 +90,7 @@ function DashboardPage() {
           </>
         )}
       </main>
-    </div>
+    </OwnerShell>
   );
 }
 
