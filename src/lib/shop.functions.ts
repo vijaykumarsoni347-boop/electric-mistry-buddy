@@ -140,16 +140,18 @@ export const updateElectrician = createServerFn({ method: "POST" })
       .parse(data)
   )
   .handler(async ({ data, context }) => {
+    const updateData: Record<string, unknown> = {
+      name: data.name,
+      phone: data.phone || null,
+      email: data.email || null,
+      address: data.address || null,
+      commission_percent: data.commission_percent,
+    };
+    if (data.is_active !== undefined) updateData.is_active = data.is_active;
+
     const { data: electrician, error } = await context.supabase
       .from("electricians")
-      .update({
-        name: data.name,
-        phone: data.phone || null,
-        email: data.email || null,
-        address: data.address || null,
-        commission_percent: data.commission_percent,
-        is_active: data.is_active,
-      })
+      .update(updateData)
       .eq("id", data.id)
       .select()
       .single();
