@@ -14,16 +14,286 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      electrician_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          electrician_id: string
+          id: string
+          notes: string | null
+          payment_date: string
+          payment_mode: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          electrician_id: string
+          id?: string
+          notes?: string | null
+          payment_date?: string
+          payment_mode?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          electrician_id?: string
+          id?: string
+          notes?: string | null
+          payment_date?: string
+          payment_mode?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "electrician_payments_electrician_id_fkey"
+            columns: ["electrician_id"]
+            isOneToOne: false
+            referencedRelation: "electricians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      electricians: {
+        Row: {
+          address: string | null
+          commission_percent: number
+          created_at: string
+          email: string | null
+          id: string
+          is_active: boolean
+          name: string
+          phone: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          address?: string | null
+          commission_percent?: number
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          address?: string | null
+          commission_percent?: number
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          low_stock_threshold: number
+          name: string
+          retail_price: number
+          sku: string | null
+          stock_quantity: number
+          updated_at: string
+          wholesale_price: number
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          low_stock_threshold?: number
+          name: string
+          retail_price: number
+          sku?: string | null
+          stock_quantity?: number
+          updated_at?: string
+          wholesale_price: number
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          low_stock_threshold?: number
+          name?: string
+          retail_price?: number
+          sku?: string | null
+          stock_quantity?: number
+          updated_at?: string
+          wholesale_price?: number
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          name: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sale_items: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          quantity: number
+          retail_price: number
+          sale_id: string
+          wholesale_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          quantity: number
+          retail_price: number
+          sale_id: string
+          wholesale_price: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          quantity?: number
+          retail_price?: number
+          sale_id?: string
+          wholesale_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sale_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sale_items_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales: {
+        Row: {
+          amount_paid: number
+          created_at: string
+          customer_name: string | null
+          electrician_id: string | null
+          id: string
+          payment_mode: string
+          sale_date: string
+          status: string
+          total_retail: number
+          total_wholesale: number
+          updated_at: string
+        }
+        Insert: {
+          amount_paid?: number
+          created_at?: string
+          customer_name?: string | null
+          electrician_id?: string | null
+          id?: string
+          payment_mode?: string
+          sale_date?: string
+          status?: string
+          total_retail?: number
+          total_wholesale?: number
+          updated_at?: string
+        }
+        Update: {
+          amount_paid?: number
+          created_at?: string
+          customer_name?: string | null
+          electrician_id?: string | null
+          id?: string
+          payment_mode?: string
+          sale_date?: string
+          status?: string
+          total_retail?: number
+          total_wholesale?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_electrician_id_fkey"
+            columns: ["electrician_id"]
+            isOneToOne: false
+            referencedRelation: "electricians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_electrician_id_for_user: {
+        Args: { _user_id: string }
+        Returns: string
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      register_user: {
+        Args: {
+          _email: string
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "owner" | "electrician"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +420,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["owner", "electrician"],
+    },
   },
 } as const
