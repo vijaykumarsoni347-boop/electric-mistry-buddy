@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { useAuth } from "@/lib/auth-context";
+import { getCurrentUserRole } from "@/lib/auth.functions";
 import { getElectricianLedger } from "@/lib/shop.functions";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -12,53 +12,111 @@ export const Route = createFileRoute("/_authenticated/electrician/ledger")({
 });
 
 function ElectricianOwnLedger() {
-  const { user } = useAuth();
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  const { data: electricianId } = useQuery({
-    queryKey: ["electrician-id", user?.id],
-    queryFn: async () => {
-      if (!user) return null;
-      // We can get the electrician id from a public RPC or by querying electricians
-      // For simplicity, we'll fetch via the ledger endpoint after getting id
-      return null;
-    },
-    enabled: false,
+  const { data: roleData, isLoading: roleLoading } = useQuery({
+    queryKey: ["my-role"],
+    queryFn: () => getCurrentUserRole(),
   });
 
-  // Get electrician id for current user
-  const { data: electricianRecord } = useQuery({
-    queryKey: ["my-electrician-record", user?.id],
-    queryFn: async () => {
-      // This is a placeholder; the actual query should be done via server function
-      // But electricians table policy allows reading own record
-      return null;
-    },
-    enabled: false,
-  });
-
-  // Since we don't have a direct client helper, we'll use a fixed dummy for now
-  // In production, fetch via server function getCurrentUserRole which returns electricianId
-  const electricianIdFromAuth = "";
+  const electricianId = roleData?.electricianId || "";
 
   const { data, isLoading } = useQuery({
-    queryKey: ["my-ledger", electricianIdFromAuth, startDate, endDate],
+    queryKey: ["my-ledger", electricianId, startDate, endDate],
     queryFn: () =>
       getElectricianLedger({
         data: {
-          electrician_id: electricianIdFromAuth,
+          electrician_id: electricianId,
           start_date: startDate || undefined,
           end_date: endDate || undefined,
         },
       }),
-    enabled: !!electricianIdFromAuth,
+    enabled: !!electricianId,
   });
 
+  const totalMargin = (data?.sales || []).reduce(
+    (sum, s) => sum + (s.total_retail - s.total_wholesale),
+    0
+  );
+  const totalPaid = (data?.payments || []).reduce((sum, p) => sum + p.amount, 0);
+  const balance = totalMargin - totalPaid;
+
   return (
-    <div className="min-h-screen bg-background p-4">
-      <h1 className="text-xl font-bold">Mera Hisaab</h1>
-      <p className="text-muted-foreground">Yahan aapka apna ledger dikhega.</p>
+    <div className="min-h-screen bg-background pb-20">
+      <header className="border-b bg-card p-4">
+        <h1 className="text-xl font-bold">Mera Hisaab</h1>
+      </header>
+
+      <main className="p-4 space-y-4">
+        {roleLoading || isLoading ? (
+          <p>Loading...</p>
+        ) : !electricianId ? (
+          <p className="text-muted-foreground">Aapka mistri record link nahi hai. Owner se contact karein.</p>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Start Date</Label>
+                <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+              </div>
+              <div>
+                <Label>End Date</Label>
+                <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Card>
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground">Total Margin</p>
+                  <p className="text-xl font-bold">₹{totalMargin.toFixed(2)}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground">Balance</p>
+                  <p className={`text-xl font-bold ${balance > 0 ? "text-primary" : ""}`}>₹{balance.toFixed(2)}</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <h2 className="font-semibold">Sales</h2>
+            <div className="space-y-2">
+              {data?.sales.map((s) => (
+                <Card key={s.id}>
+                  <CardContent className="p-3">
+                    <div className="flex justify-between">
+                      <span>{new Date(s.sale_date).toLocaleDateString("hi-IN")}</span>
+                      <span className="font-bold">₹{s.total_retail.toFixed(2)}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Margin: ₹{(s.total_retail - s.total_wholesale).toFixed(2)}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+              {data?.sales.length === 0 && <p className="text-muted-foreground">Koi sale nahi</p>}
+            </div>
+
+            <h2 className="font-semibold">Payments</h2>
+            <div className="space-y-2">
+              {data?.payments.map((p) => (
+                <Card key={p.id}>
+                  <CardContent className="p-3">
+                    <div className="flex justify-between">
+                      <span>{new Date(p.payment_date).toLocaleDateString("hi-IN")}</span>
+                      <span className="font-bold text-green-600">-₹{p.amount.toFixed(2)}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">{p.payment_mode}</p>
+                  </CardContent>
+                </Card>
+              ))}
+              {data?.payments.length === 0 && <p className="text-muted-foreground">Koi payment nahi</p>}
+            </div>
+          </>
+        )}
+      </main>
     </div>
   );
 }
