@@ -205,6 +205,6 @@ function BillingPage() {
           </Card>
         </div>
       </main>
-    </div>
+    </OwnerShell>
   );
 }
