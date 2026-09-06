@@ -35,8 +35,12 @@ type SignupForm = z.infer<typeof signupSchema>;
 
 function AuthPage() {
   const navigate = useNavigate();
-  const { isLoading, isAuthenticated, isOwner, isElectrician } = useAuth();
+  const { isLoading, isAuthenticated, isOwner, isElectrician, roles, refresh, user } = useAuth();
   const [activeTab, setActiveTab] = useState("login");
+  const [pendingRole, setPendingRole] = useState<"owner" | "electrician">("owner");
+  const [assigning, setAssigning] = useState(false);
+
+  const needsRole = !isLoading && isAuthenticated && roles.length === 0;
 
   const loginForm = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -53,6 +57,20 @@ function AuthPage() {
     if (isOwner) navigate({ to: "/dashboard", replace: true });
     else if (isElectrician) navigate({ to: "/electrician/ledger", replace: true });
   }, [isLoading, isAuthenticated, isOwner, isElectrician, navigate]);
+
+  const assignRole = async (role: "owner" | "electrician") => {
+    if (!user?.email) return;
+    setAssigning(true);
+    try {
+      await registerUser({ data: { role, email: user.email } });
+      await refresh();
+      toast.success("Account taiyar hai");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Role assign nahi ho saka");
+    } finally {
+      setAssigning(false);
+    }
+  };
 
   const onLogin = async (values: LoginForm) => {
     const { error } = await supabase.auth.signInWithPassword({
@@ -81,16 +99,39 @@ function AuthPage() {
     }
 
     if (data.session && data.user) {
-      try {
-        await registerUser({ data: { role: values.role, email: values.email } });
-        toast.success("Account ban gaya");
-      } catch (e) {
-        toast.error(e instanceof Error ? e.message : "Role assign nahi ho saka");
-      }
+      await assignRole(values.role);
     } else {
       toast.success("Email confirm karein, uske baad login karein");
     }
   };
+
+  if (needsRole) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">Ek aakhri step</CardTitle>
+            <CardDescription>Batayein aap kya hain, uske hisaab se app khulegi</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Select value={pendingRole} onValueChange={(v) => setPendingRole(v as "owner" | "electrician")}>
+              <SelectTrigger>
+                <SelectValue placeholder="Chunein" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="owner">Dukaan Owner</SelectItem>
+                <SelectItem value="electrician">Mistri / Electrician</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button className="w-full" disabled={assigning} onClick={() => assignRole(pendingRole)}>
+              {assigning ? "Ruko..." : "Aage badhein"}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
