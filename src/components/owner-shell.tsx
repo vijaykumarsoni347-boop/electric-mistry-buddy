@@ -8,10 +8,10 @@ import type { ReactNode } from "react";
 
 const navItems = [
   { to: "/dashboard", label: "Home", icon: Home },
-  { to: "/inventory", label: "Inventory", icon: Package },
-  { to: "/billing", label: "Billing", icon: ShoppingCart },
+  { to: "/inventory", label: "Saman", icon: Package },
+  { to: "/billing", label: "Bill", icon: ShoppingCart },
   { to: "/electricians", label: "Mistri", icon: Users },
-  { to: "/settlement", label: "Settlement", icon: ClipboardList },
+  { to: "/settlement", label: "Hisab", icon: ClipboardList },
 ];
 
 export function OwnerShell({ children, title }: { children: ReactNode; title: string }) {
