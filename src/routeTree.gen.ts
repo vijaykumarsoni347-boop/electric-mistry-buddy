@@ -18,6 +18,7 @@ import { Route as AuthenticatedElectriciansRouteImport } from './routes/_authent
 import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
 import { Route as AuthenticatedSettlementRouteImport } from './routes/_authenticated/settlement'
 import { Route as AuthenticatedElectricianLedgerRouteImport } from './routes/_authenticated/electrician/ledger'
+import { Route as AuthenticatedElectricianRatesRouteImport } from './routes/_authenticated/electrician/rates'
 import { Route as AuthenticatedLedgerElectricianIdRouteImport } from './routes/_authenticated/ledger/$electricianId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -66,6 +67,12 @@ const AuthenticatedElectricianLedgerRoute =
     path: '/electrician/ledger',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedElectricianRatesRoute =
+  AuthenticatedElectricianRatesRouteImport.update({
+    id: '/electrician/rates',
+    path: '/electrician/rates',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedLedgerElectricianIdRoute =
   AuthenticatedLedgerElectricianIdRouteImport.update({
     id: '/ledger/$electricianId',
@@ -82,6 +89,7 @@ export interface FileRoutesByFullPath {
   '/inventory': typeof AuthenticatedInventoryRoute
   '/settlement': typeof AuthenticatedSettlementRoute
   '/electrician/ledger': typeof AuthenticatedElectricianLedgerRoute
+  '/electrician/rates': typeof AuthenticatedElectricianRatesRoute
   '/ledger/$electricianId': typeof AuthenticatedLedgerElectricianIdRoute
 }
 export interface FileRoutesByTo {
@@ -93,6 +101,7 @@ export interface FileRoutesByTo {
   '/inventory': typeof AuthenticatedInventoryRoute
   '/settlement': typeof AuthenticatedSettlementRoute
   '/electrician/ledger': typeof AuthenticatedElectricianLedgerRoute
+  '/electrician/rates': typeof AuthenticatedElectricianRatesRoute
   '/ledger/$electricianId': typeof AuthenticatedLedgerElectricianIdRoute
 }
 export interface FileRoutesById {
@@ -106,6 +115,7 @@ export interface FileRoutesById {
   '/_authenticated/inventory': typeof AuthenticatedInventoryRoute
   '/_authenticated/settlement': typeof AuthenticatedSettlementRoute
   '/_authenticated/electrician/ledger': typeof AuthenticatedElectricianLedgerRoute
+  '/_authenticated/electrician/rates': typeof AuthenticatedElectricianRatesRoute
   '/_authenticated/ledger/$electricianId': typeof AuthenticatedLedgerElectricianIdRoute
 }
 export interface FileRouteTypes {
@@ -119,6 +129,7 @@ export interface FileRouteTypes {
     | '/inventory'
     | '/settlement'
     | '/electrician/ledger'
+    | '/electrician/rates'
     | '/ledger/$electricianId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -130,6 +141,7 @@ export interface FileRouteTypes {
     | '/inventory'
     | '/settlement'
     | '/electrician/ledger'
+    | '/electrician/rates'
     | '/ledger/$electricianId'
   id:
     | '__root__'
@@ -142,6 +154,7 @@ export interface FileRouteTypes {
     | '/_authenticated/inventory'
     | '/_authenticated/settlement'
     | '/_authenticated/electrician/ledger'
+    | '/_authenticated/electrician/rates'
     | '/_authenticated/ledger/$electricianId'
   fileRoutesById: FileRoutesById
 }
@@ -216,6 +229,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedElectricianLedgerRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/electrician/rates': {
+      id: '/_authenticated/electrician/rates'
+      path: '/electrician/rates'
+      fullPath: '/electrician/rates'
+      preLoaderRoute: typeof AuthenticatedElectricianRatesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ledger/$electricianId': {
       id: '/_authenticated/ledger/$electricianId'
       path: '/ledger/$electricianId'
@@ -233,6 +253,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
   AuthenticatedSettlementRoute: typeof AuthenticatedSettlementRoute
   AuthenticatedElectricianLedgerRoute: typeof AuthenticatedElectricianLedgerRoute
+  AuthenticatedElectricianRatesRoute: typeof AuthenticatedElectricianRatesRoute
   AuthenticatedLedgerElectricianIdRoute: typeof AuthenticatedLedgerElectricianIdRoute
 }
 
@@ -243,6 +264,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,
   AuthenticatedSettlementRoute: AuthenticatedSettlementRoute,
   AuthenticatedElectricianLedgerRoute: AuthenticatedElectricianLedgerRoute,
+  AuthenticatedElectricianRatesRoute: AuthenticatedElectricianRatesRoute,
   AuthenticatedLedgerElectricianIdRoute: AuthenticatedLedgerElectricianIdRoute,
 }
 
