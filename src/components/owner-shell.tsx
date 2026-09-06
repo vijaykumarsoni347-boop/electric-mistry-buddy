@@ -21,9 +21,11 @@ export function OwnerShell({ children, title }: { children: ReactNode; title: st
 
   const handleSignOut = async () => {
     await queryClient.cancelQueries();
-    queryClient.clear();
     await supabase.auth.signOut();
-    navigate({ to: "/auth", replace: true });
+    // Pehle navigate karo, tabhi mounted queries unmount hongi;
+    // clear() pehle karne se dashboard turant bina token ke refetch kar deta tha.
+    await navigate({ to: "/auth", replace: true });
+    queryClient.clear();
     toast.success("Logout ho gaya");
   };
 
