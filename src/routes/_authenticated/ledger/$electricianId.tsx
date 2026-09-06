@@ -38,17 +38,17 @@ function LedgerPage() {
   return (
     <div className="min-h-screen bg-background pb-20">
       <header className="border-b bg-card p-4">
-        <h1 className="text-xl font-bold">Mistri Ledger</h1>
+        <h1 className="text-xl font-bold">Mistri ka Hisab</h1>
       </header>
 
       <main className="p-4 space-y-4">
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <Label>Start Date</Label>
+            <Label>Kab Se</Label>
             <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
           </div>
           <div>
-            <Label>End Date</Label>
+            <Label>Kab Tak</Label>
             <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
           </div>
         </div>
@@ -56,23 +56,23 @@ function LedgerPage() {
         <div className="grid grid-cols-2 gap-3">
           <Card>
             <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground">Total Margin</p>
+              <p className="text-sm text-muted-foreground">Kul Hissa</p>
               <p className="text-xl font-bold">₹{totalMargin.toFixed(2)}</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground">Balance</p>
+              <p className="text-sm text-muted-foreground">Baaki Paisa</p>
               <p className={`text-xl font-bold ${balance > 0 ? "text-primary" : ""}`}>₹{balance.toFixed(2)}</p>
             </CardContent>
           </Card>
         </div>
 
         {isLoading ? (
-          <p>Loading...</p>
+          <p>Thoda rukiye...</p>
         ) : (
           <>
-            <h2 className="font-semibold">Sales</h2>
+            <h2 className="font-semibold">Bills</h2>
             <div className="space-y-2">
               {data?.sales.map((s) => (
                 <Card key={s.id}>
@@ -81,14 +81,14 @@ function LedgerPage() {
                       <span>{new Date(s.sale_date).toLocaleDateString("hi-IN")}</span>
                       <span className="font-bold">₹{s.total_retail.toFixed(2)}</span>
                     </div>
-                    <p className="text-xs text-muted-foreground">Margin: ₹{(s.total_retail - s.total_wholesale).toFixed(2)}</p>
+                    <p className="text-xs text-muted-foreground">Hissa: ₹{(s.total_retail - s.total_wholesale).toFixed(2)}</p>
                   </CardContent>
                 </Card>
               ))}
-              {data?.sales.length === 0 && <p className="text-muted-foreground">Koi sale nahi</p>}
+              {data?.sales.length === 0 && <p className="text-muted-foreground">Koi bill nahi</p>}
             </div>
 
-            <h2 className="font-semibold">Payments</h2>
+            <h2 className="font-semibold">Paise Diye</h2>
             <div className="space-y-2">
               {data?.payments.map((p) => (
                 <Card key={p.id}>

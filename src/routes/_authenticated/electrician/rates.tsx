@@ -68,19 +68,19 @@ function RateList() {
   );
 
   return (
-    <ElectricianShell title="Rate List">
+    <ElectricianShell title="Saman ke Rate">
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           className="pl-9"
-          placeholder="Saman dhundein..."
+          placeholder="Saman ka naam likhein..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
       {isLoading ? (
-        <p className="text-muted-foreground">Loading...</p>
+        <p className="text-muted-foreground">Thoda rukiye...</p>
       ) : (
         <div className="space-y-2">
           {filtered.map((p) => {
@@ -99,12 +99,12 @@ function RateList() {
                     </div>
                     <div className="text-right shrink-0">
                       <p className="font-bold">₹{Number(p.retail_price).toFixed(2)}</p>
-                      <p className="text-xs text-primary">Commission ₹{margin.toFixed(2)}</p>
+                      <p className="text-xs text-primary">Mera Hissa ₹{margin.toFixed(2)}</p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-muted-foreground">
-                      Stock: {p.stock_quantity}
+                      Bacha: {p.stock_quantity}
                     </span>
                     <div className="flex items-center gap-2">
                       <Button
@@ -142,11 +142,11 @@ function RateList() {
       {selected.length > 0 && (
         <div className="fixed bottom-16 inset-x-0 border-t bg-card p-3 shadow-lg">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Customer ka bill</span>
+            <span className="text-muted-foreground">Grahak ka bill</span>
             <span className="font-bold text-lg">₹{billTotal.toFixed(2)}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Mera commission</span>
+            <span className="text-muted-foreground">Mera Hissa</span>
             <span className="font-bold text-primary">₹{commission.toFixed(2)}</span>
           </div>
           <Button
@@ -155,7 +155,7 @@ function RateList() {
             className="mt-2 w-full"
             onClick={() => setCart({})}
           >
-            <Trash2 className="h-4 w-4 mr-1" /> List saaf karein
+            <Trash2 className="h-4 w-4 mr-1" /> Sab Hatao
           </Button>
         </div>
       )}
