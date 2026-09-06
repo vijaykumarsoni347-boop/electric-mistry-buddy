@@ -46,18 +46,18 @@ function ElectricianOwnLedger() {
   return (
     <ElectricianShell title="Mera Hisaab">
       {roleLoading || isLoading ? (
-          <p>Loading...</p>
+          <p>Thoda rukiye...</p>
         ) : !electricianId ? (
-          <p className="text-muted-foreground">Aapka mistri record link nahi hai. Owner se contact karein.</p>
+          <p className="text-muted-foreground">Aapka khata abhi juda nahi hai. Dukaan malik se kahein.</p>
         ) : (
           <>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Start Date</Label>
+                <Label>Kab Se</Label>
                 <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
               </div>
               <div>
-                <Label>End Date</Label>
+                <Label>Kab Tak</Label>
                 <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
               </div>
             </div>
@@ -65,19 +65,19 @@ function ElectricianOwnLedger() {
             <div className="grid grid-cols-2 gap-3">
               <Card>
                 <CardContent className="p-4">
-                  <p className="text-sm text-muted-foreground">Total Margin</p>
+                  <p className="text-sm text-muted-foreground">Mera Kul Hissa</p>
                   <p className="text-xl font-bold">₹{totalMargin.toFixed(2)}</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-4">
-                  <p className="text-sm text-muted-foreground">Balance</p>
+                  <p className="text-sm text-muted-foreground">Mera Baaki Paisa</p>
                   <p className={`text-xl font-bold ${balance > 0 ? "text-primary" : ""}`}>₹{balance.toFixed(2)}</p>
                 </CardContent>
               </Card>
             </div>
 
-            <h2 className="font-semibold">Sales</h2>
+            <h2 className="font-semibold">Mere Bills</h2>
             <div className="space-y-2">
               {data?.sales.map((s) => (
                 <Card key={s.id}>
@@ -87,15 +87,15 @@ function ElectricianOwnLedger() {
                       <span className="font-bold">₹{s.total_retail.toFixed(2)}</span>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Margin: ₹{(s.total_retail - s.total_wholesale).toFixed(2)}
+                      Mera Hissa: ₹{(s.total_retail - s.total_wholesale).toFixed(2)}
                     </p>
                   </CardContent>
                 </Card>
               ))}
-              {data?.sales.length === 0 && <p className="text-muted-foreground">Koi sale nahi</p>}
+              {data?.sales.length === 0 && <p className="text-muted-foreground">Koi bill nahi</p>}
             </div>
 
-            <h2 className="font-semibold">Payments</h2>
+            <h2 className="font-semibold">Mujhe Paise Mile</h2>
             <div className="space-y-2">
               {data?.payments.map((p) => (
                 <Card key={p.id}>
@@ -108,7 +108,7 @@ function ElectricianOwnLedger() {
                   </CardContent>
                 </Card>
               ))}
-              {data?.payments.length === 0 && <p className="text-muted-foreground">Koi payment nahi</p>}
+              {data?.payments.length === 0 && <p className="text-muted-foreground">Abhi koi paisa nahi mila</p>}
             </div>
           </>
       )}

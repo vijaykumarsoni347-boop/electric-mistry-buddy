@@ -86,23 +86,23 @@ function InventoryPage() {
   };
 
   return (
-    <OwnerShell title="Inventory">
+    <OwnerShell title="Saman ki List">
       <main className="p-4 space-y-3">
         <div className="flex justify-end">
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button size="sm" onClick={() => setEditing(null)}>+ Naya Product</Button>
+              <Button size="sm" onClick={() => setEditing(null)}>+ Naya Saman</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>{editing ? "Edit Product" : "Naya Product"}</DialogTitle>
+                <DialogTitle>{editing ? "Saman Badlo" : "Naya Saman"}</DialogTitle>
               </DialogHeader>
               <ProductForm onSubmit={handleSubmit} editing={editing} />
             </DialogContent>
           </Dialog>
         </div>
         {isLoading ? (
-          <p>Loading...</p>
+          <p>Thoda rukiye...</p>
         ) : (
           products?.map((p) => (
             <Card key={p.id} className={p.stock_quantity < p.low_stock_threshold ? "border-destructive/50" : ""}>
@@ -110,12 +110,17 @@ function InventoryPage() {
                 <div className="flex items-start justify-between">
                   <div>
                     <h3 className="font-semibold">{p.name}</h3>
-                    <p className="text-sm text-muted-foreground">{p.category || "No category"}</p>
-                    <p className="text-sm">Stock: {p.stock_quantity}</p>
+                    <p className="text-sm text-muted-foreground">{p.category || ""}</p>
+                    <p className="text-sm">
+                      Bacha: {p.stock_quantity}
+                      {p.stock_quantity < p.low_stock_threshold && (
+                        <span className="text-destructive font-medium"> — khatam ho raha hai!</span>
+                      )}
+                    </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm">WS: ₹{p.wholesale_price}</p>
-                    <p className="text-sm font-medium">RT: ₹{p.retail_price}</p>
+                    <p className="text-sm">Lagat: ₹{p.wholesale_price}</p>
+                    <p className="text-sm font-medium">Grahak ka rate: ₹{p.retail_price}</p>
                   </div>
                 </div>
                 <div className="mt-3 flex gap-2">
@@ -135,14 +140,14 @@ function InventoryPage() {
                       })
                     }
                   >
-                    Edit
+                    Badlo
                   </Button>
                   <Button
                     variant="destructive"
                     size="sm"
                     onClick={() => deleteMutation.mutate({ data: { id: p.id } })}
                   >
-                    Delete
+                    Hatao
                   </Button>
                 </div>
               </CardContent>
@@ -164,40 +169,40 @@ function ProductForm({
   return (
     <form onSubmit={onSubmit} className="space-y-3 pt-2">
       <div>
-        <Label>Naam</Label>
+        <Label>Saman ka Naam</Label>
         <Input name="name" defaultValue={editing?.name} required />
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <Label>SKU</Label>
+          <Label>Code (SKU)</Label>
           <Input name="sku" defaultValue={editing?.sku} />
         </div>
         <div>
-          <Label>Category</Label>
+          <Label>Kis Tarah Ka</Label>
           <Input name="category" defaultValue={editing?.category} />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <Label>Stock</Label>
+          <Label>Kitna Hai (Stock)</Label>
           <Input name="stock_quantity" type="number" defaultValue={editing?.stock_quantity ?? 0} required />
         </div>
         <div>
-          <Label>Low Stock Alert</Label>
+          <Label>Kam Hone Par Bataye</Label>
           <Input name="low_stock_threshold" type="number" defaultValue={editing?.low_stock_threshold ?? 10} required />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <Label>Wholesale Price</Label>
+          <Label>Lagat (Aapka Rate)</Label>
           <Input name="wholesale_price" type="number" step="0.01" defaultValue={editing?.wholesale_price ?? 0} required />
         </div>
         <div>
-          <Label>Retail Price</Label>
+          <Label>Grahak Ka Rate</Label>
           <Input name="retail_price" type="number" step="0.01" defaultValue={editing?.retail_price ?? 0} required />
         </div>
       </div>
-      <Button type="submit" className="w-full">{editing ? "Update" : "Add"} Product</Button>
+      <Button type="submit" className="w-full">{editing ? "Badlav Save Karein" : "Saman Jodo"}</Button>
     </form>
   );
 }
