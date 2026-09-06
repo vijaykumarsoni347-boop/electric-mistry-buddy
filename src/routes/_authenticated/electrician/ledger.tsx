@@ -1,33 +1,20 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { getCurrentUserRole } from "@/lib/auth.functions";
 import { getElectricianLedger } from "@/lib/shop.functions";
-import { supabase } from "@/integrations/supabase/client";
+import { ElectricianShell } from "@/components/electrician-shell";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
-import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/electrician/ledger")({
   component: ElectricianOwnLedger,
 });
 
 function ElectricianOwnLedger() {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-
-  const handleSignOut = async () => {
-    await queryClient.cancelQueries();
-    queryClient.clear();
-    await supabase.auth.signOut();
-    navigate({ to: "/auth", replace: true });
-    toast.success("Logout ho gaya");
-  };
 
   const { data: roleData, isLoading: roleLoading } = useQuery({
     queryKey: ["my-role"],
@@ -57,16 +44,8 @@ function ElectricianOwnLedger() {
   const balance = totalMargin - totalPaid;
 
   return (
-    <div className="min-h-screen bg-background pb-20">
-      <header className="border-b bg-card p-4 flex items-center justify-between">
-        <h1 className="text-xl font-bold">Mera Hisaab</h1>
-        <Button variant="ghost" size="icon" onClick={handleSignOut}>
-          <LogOut className="h-5 w-5" />
-        </Button>
-      </header>
-
-      <main className="p-4 space-y-4">
-        {roleLoading || isLoading ? (
+    <ElectricianShell title="Mera Hisaab">
+      {roleLoading || isLoading ? (
           <p>Loading...</p>
         ) : !electricianId ? (
           <p className="text-muted-foreground">Aapka mistri record link nahi hai. Owner se contact karein.</p>
@@ -132,8 +111,7 @@ function ElectricianOwnLedger() {
               {data?.payments.length === 0 && <p className="text-muted-foreground">Koi payment nahi</p>}
             </div>
           </>
-        )}
-      </main>
-    </div>
+      )}
+    </ElectricianShell>
   );
 }
