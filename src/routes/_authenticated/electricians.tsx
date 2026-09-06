@@ -92,7 +92,7 @@ function ElectriciansPage() {
   };
 
   return (
-    <OwnerShell title="Mistri Directory">
+    <OwnerShell title="Mistri List">
       <main className="p-4 space-y-3">
         <div className="flex justify-end">
           <Dialog open={open} onOpenChange={setOpen}>
@@ -101,7 +101,7 @@ function ElectriciansPage() {
             </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editing ? "Edit Mistri" : "Naya Mistri"}</DialogTitle>
+              <DialogTitle>{editing ? "Mistri Badlo" : "Naya Mistri"}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-3 pt-2">
               <div>
@@ -141,13 +141,13 @@ function ElectriciansPage() {
                   <Label>Active</Label>
                 </div>
               )}
-              <Button type="submit" className="w-full">{editing ? "Update" : "Add"} Mistri</Button>
+              <Button type="submit" className="w-full">{editing ? "Badlav Save Karein" : "Mistri Jodo"}</Button>
             </form>
           </DialogContent>
         </Dialog>
         </div>
         {isLoading ? (
-          <p>Loading...</p>
+          <p>Thoda rukiye...</p>
         ) : (
           electricians?.map((e) => (
             <Card key={e.id}>
@@ -155,11 +155,11 @@ function ElectriciansPage() {
                 <div className="flex items-start justify-between">
                   <div>
                     <h3 className="font-semibold">{e.name}</h3>
-                    <p className="text-sm text-muted-foreground">{e.phone || "No phone"}</p>
-                    <p className="text-sm">Commission: {e.commission_percent}%</p>
+                    <p className="text-sm text-muted-foreground">{e.phone || ""}</p>
+                    <p className="text-sm">Hissa: {e.commission_percent}%</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs text-muted-foreground">{e.is_active ? "Active" : "Inactive"}</p>
+                    <p className="text-xs text-muted-foreground">{e.is_active ? "Kaam karta hai" : "Band"}</p>
                   </div>
                 </div>
                 <div className="mt-3 flex gap-2">
@@ -178,17 +178,17 @@ function ElectriciansPage() {
                       })
                     }
                   >
-                    Edit
+                    Badlo
                   </Button>
                   <Link to="/ledger/$electricianId" params={{ electricianId: e.id }}>
-                    <Button variant="secondary" size="sm">Ledger</Button>
+                    <Button variant="secondary" size="sm">Hisab</Button>
                   </Link>
                   <Button
                     variant="destructive"
                     size="sm"
                     onClick={() => deleteMutation.mutate({ data: { id: e.id } })}
                   >
-                    Delete
+                    Hatao
                   </Button>
                 </div>
               </CardContent>

@@ -53,22 +53,22 @@ function SettlementPage() {
   const totalBalance = settlement?.reduce((sum, s) => sum + s.balance, 0) || 0;
 
   return (
-    <OwnerShell title="Daily Settlement">
+    <OwnerShell title="Shaam ka Hisab">
       <main className="p-4 space-y-4">
         <div>
-          <Label>Date</Label>
+          <Label>Tarikh</Label>
           <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
         </div>
 
         <Card>
           <CardContent className="p-4">
-            <p className="text-sm text-muted-foreground">Total Balance</p>
+            <p className="text-sm text-muted-foreground">Sabka Kul Baaki Paisa</p>
             <p className="text-2xl font-bold">₹{totalBalance.toFixed(2)}</p>
           </CardContent>
         </Card>
 
         {isLoading ? (
-          <p>Loading...</p>
+          <p>Thoda rukiye...</p>
         ) : (
           <div className="space-y-3">
             {settlement?.map((s) => (
@@ -78,13 +78,14 @@ function SettlementPage() {
                     <div>
                       <h3 className="font-semibold">{s.electrician.name}</h3>
                       <p className="text-sm text-muted-foreground">
-                        Sales: ₹{s.totalRetail.toFixed(2)} | Margin: ₹{s.margin.toFixed(2)}
+                        Sale: ₹{s.totalRetail.toFixed(2)} | Uska Hissa: ₹{s.margin.toFixed(2)}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        Paid: ₹{s.totalPaid.toFixed(2)} | Bills: {s.salesCount}
+                        Diya Gaya: ₹{s.totalPaid.toFixed(2)} | Bill: {s.salesCount}
                       </p>
                     </div>
                     <div className="text-right">
+                      <p className="text-xs text-muted-foreground">Baaki</p>
                       <p className={`text-lg font-bold ${s.balance > 0 ? "text-primary" : ""}`}>
                         ₹{s.balance.toFixed(2)}
                       </p>
@@ -98,34 +99,34 @@ function SettlementPage() {
                           variant="outline"
                           onClick={() => setPaying({ id: s.electrician.id, name: s.electrician.name, balance: s.balance })}
                         >
-                          Payment Record
+                          Paisa Diya
                         </Button>
                       </DialogTrigger>
                       <DialogContent>
                         <DialogHeader>
-                          <DialogTitle>Payment - {paying?.name}</DialogTitle>
+                          <DialogTitle>{paying?.name} ko Paisa Dena</DialogTitle>
                         </DialogHeader>
                         <div className="space-y-3 pt-2">
                           <div>
-                            <Label>Amount</Label>
+                            <Label>Kitne Paise Diye</Label>
                             <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
                           </div>
                           <div>
-                            <Label>Mode</Label>
+                            <Label>Kaise Diye</Label>
                             <Select value={mode} onValueChange={(v) => setMode(v as typeof mode)}>
                               <SelectTrigger>
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="cash">Cash</SelectItem>
+                                <SelectItem value="cash">Nakad (Cash)</SelectItem>
                                 <SelectItem value="upi">UPI</SelectItem>
-                                <SelectItem value="credit">Credit</SelectItem>
-                                <SelectItem value="other">Other</SelectItem>
+                                <SelectItem value="credit">Udhar</SelectItem>
+                                <SelectItem value="other">Doosra</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
                           <Button className="w-full" onClick={handlePayment} disabled={paymentMutation.isPending}>
-                            Record Payment
+                            Save Karein
                           </Button>
                         </div>
                       </DialogContent>
