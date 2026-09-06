@@ -58,9 +58,12 @@ function RateList() {
     });
 
   const selected = (products || []).filter((p) => cart[p.id]);
-  const billTotal = selected.reduce((s, p) => s + Number(p.retail_price) * cart[p.id], 0);
+  const billTotal = selected.reduce(
+    (s, p) => s + Number(p.retail_price) * (cart[p.id] ?? 0),
+    0
+  );
   const commission = selected.reduce(
-    (s, p) => s + (Number(p.retail_price) - Number(p.wholesale_price)) * cart[p.id],
+    (s, p) => s + (Number(p.retail_price) - Number(p.wholesale_price)) * (cart[p.id] ?? 0),
     0
   );
 
