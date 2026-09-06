@@ -36,7 +36,7 @@ function ElectriciansPage() {
   });
 
   const createMutation = useMutation({
-    mutationFn: createElectrician,
+    mutationFn: createElectricianAccount,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["electricians"] });
       setOpen(false);
@@ -81,7 +81,13 @@ function ElectriciansPage() {
         data: { ...payload, id: editing.id, is_active: editing.is_active },
       });
     } else {
-      createMutation.mutate({ data: payload });
+      const email = (fd.get("email") as string) || "";
+      const password = (fd.get("password") as string) || "";
+      if (!email || password.length < 6) {
+        toast.error("Naye mistri ke liye email aur 6+ characters ka password zaroori hai");
+        return;
+      }
+      createMutation.mutate({ data: { ...payload, email, password } });
     }
   };
 
