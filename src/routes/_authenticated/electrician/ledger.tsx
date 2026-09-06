@@ -58,8 +58,11 @@ function ElectricianOwnLedger() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <header className="border-b bg-card p-4">
+      <header className="border-b bg-card p-4 flex items-center justify-between">
         <h1 className="text-xl font-bold">Mera Hisaab</h1>
+        <Button variant="ghost" size="icon" onClick={handleSignOut}>
+          <LogOut className="h-5 w-5" />
+        </Button>
       </header>
 
       <main className="p-4 space-y-4">
