@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { getElectricians, createElectrician, updateElectrician, deleteElectrician } from "@/lib/shop.functions";
+import { getElectricians, createElectricianAccount, updateElectrician, deleteElectrician } from "@/lib/shop.functions";
 import { OwnerShell } from "@/components/owner-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,7 +36,7 @@ function ElectriciansPage() {
   });
 
   const createMutation = useMutation({
-    mutationFn: createElectrician,
+    mutationFn: createElectricianAccount,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["electricians"] });
       setOpen(false);
@@ -81,7 +81,13 @@ function ElectriciansPage() {
         data: { ...payload, id: editing.id, is_active: editing.is_active },
       });
     } else {
-      createMutation.mutate({ data: payload });
+      const email = (fd.get("email") as string) || "";
+      const password = (fd.get("password") as string) || "";
+      if (!email || password.length < 6) {
+        toast.error("Naye mistri ke liye email aur 6+ characters ka password zaroori hai");
+        return;
+      }
+      createMutation.mutate({ data: { ...payload, email, password } });
     }
   };
 
@@ -108,10 +114,16 @@ function ElectriciansPage() {
                   <Input name="phone" defaultValue={editing?.phone} />
                 </div>
                 <div>
-                  <Label>Email</Label>
-                  <Input name="email" type="email" defaultValue={editing?.email} />
+                  <Label>Email {editing ? "" : "(login ke liye)"}</Label>
+                  <Input name="email" type="email" defaultValue={editing?.email} required={!editing} />
                 </div>
               </div>
+              {!editing && (
+                <div>
+                  <Label>Password (mistri ka login password)</Label>
+                  <Input name="password" type="text" minLength={6} required placeholder="Kam se kam 6 characters" />
+                </div>
+              )}
               <div>
                 <Label>Address</Label>
                 <Input name="address" defaultValue={editing?.address} />

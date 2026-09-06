@@ -129,6 +129,65 @@ export const createElectrician = createServerFn({ method: "POST" })
     return electrician;
   });
 
+export const createElectricianAccount = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    electricianSchema
+      .extend({
+        email: z.string().email(),
+        password: z.string().min(6),
+      })
+      .parse(data)
+  )
+  .handler(async ({ data, context }) => {
+    const { data: isOwner, error: roleError } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "owner",
+    });
+    if (roleError) throw new Error(roleError.message);
+    if (!isOwner) throw new Error("Sirf owner mistri account bana sakta hai");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+      email: data.email,
+      password: data.password,
+      email_confirm: true,
+      user_metadata: { name: data.name },
+    });
+    if (createError) throw new Error(createError.message);
+
+    const userId = newUser.user.id;
+
+    const { error: roleInsertError } = await supabaseAdmin
+      .from("user_roles")
+      .insert({ user_id: userId, role: "electrician" });
+    if (roleInsertError) {
+      await supabaseAdmin.auth.admin.deleteUser(userId);
+      throw new Error(roleInsertError.message);
+    }
+
+    const { data: electrician, error: electricianError } = await supabaseAdmin
+      .from("electricians")
+      .insert({
+        user_id: userId,
+        name: data.name,
+        phone: data.phone || null,
+        email: data.email,
+        address: data.address || null,
+        commission_percent: data.commission_percent,
+      })
+      .select()
+      .single();
+    if (electricianError) {
+      await supabaseAdmin.from("user_roles").delete().eq("user_id", userId);
+      await supabaseAdmin.auth.admin.deleteUser(userId);
+      throw new Error(electricianError.message);
+    }
+
+    return electrician;
+  });
+
 export const updateElectrician = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) =>
