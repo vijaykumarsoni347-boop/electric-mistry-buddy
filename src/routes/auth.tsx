@@ -35,7 +35,7 @@ type SignupForm = z.infer<typeof signupSchema>;
 
 function AuthPage() {
   const navigate = useNavigate();
-  const { isAuthenticated, isOwner, isElectrician } = useAuth();
+  const { isLoading, isAuthenticated, isOwner, isElectrician } = useAuth();
   const [activeTab, setActiveTab] = useState("login");
 
   const loginForm = useForm<LoginForm>({
@@ -48,10 +48,11 @@ function AuthPage() {
     defaultValues: { name: "", email: "", password: "", role: "owner" },
   });
 
-  if (isAuthenticated) {
+  useEffect(() => {
+    if (isLoading || !isAuthenticated) return;
     if (isOwner) navigate({ to: "/dashboard", replace: true });
     else if (isElectrician) navigate({ to: "/electrician/ledger", replace: true });
-  }
+  }, [isLoading, isAuthenticated, isOwner, isElectrician, navigate]);
 
   const onLogin = async (values: LoginForm) => {
     const { error } = await supabase.auth.signInWithPassword({
