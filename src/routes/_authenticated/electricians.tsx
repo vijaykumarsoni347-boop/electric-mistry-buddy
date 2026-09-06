@@ -114,10 +114,16 @@ function ElectriciansPage() {
                   <Input name="phone" defaultValue={editing?.phone} />
                 </div>
                 <div>
-                  <Label>Email</Label>
-                  <Input name="email" type="email" defaultValue={editing?.email} />
+                  <Label>Email {editing ? "" : "(login ke liye)"}</Label>
+                  <Input name="email" type="email" defaultValue={editing?.email} required={!editing} />
                 </div>
               </div>
+              {!editing && (
+                <div>
+                  <Label>Password (mistri ka login password)</Label>
+                  <Input name="password" type="text" minLength={6} required placeholder="Kam se kam 6 characters" />
+                </div>
+              )}
               <div>
                 <Label>Address</Label>
                 <Input name="address" defaultValue={editing?.address} />
