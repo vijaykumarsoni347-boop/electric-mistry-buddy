@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { getElectricians, createElectrician, updateElectrician, deleteElectrician } from "@/lib/shop.functions";
+import { getElectricians, createElectricianAccount, updateElectrician, deleteElectrician } from "@/lib/shop.functions";
 import { OwnerShell } from "@/components/owner-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
