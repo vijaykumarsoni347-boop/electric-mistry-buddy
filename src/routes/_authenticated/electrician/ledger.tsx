@@ -16,8 +16,18 @@ export const Route = createFileRoute("/_authenticated/electrician/ledger")({
 });
 
 function ElectricianOwnLedger() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+
+  const handleSignOut = async () => {
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await supabase.auth.signOut();
+    navigate({ to: "/auth", replace: true });
+    toast.success("Logout ho gaya");
+  };
 
   const { data: roleData, isLoading: roleLoading } = useQuery({
     queryKey: ["my-role"],
