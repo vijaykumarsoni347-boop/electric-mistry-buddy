@@ -11,10 +11,12 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 });
 
 function DashboardPage() {
+  const { isAuthenticated } = useAuth();
   const today = new Date().toISOString().split("T")[0];
   const { data, isLoading } = useQuery({
     queryKey: ["dashboard", today],
     queryFn: () => getDashboardSummary({ data: { date: today } }),
+    enabled: isAuthenticated,
   });
 
   return (
