@@ -111,8 +111,7 @@ function ElectricianOwnLedger() {
               {data?.payments.length === 0 && <p className="text-muted-foreground">Koi payment nahi</p>}
             </div>
           </>
-        )}
-      </main>
-    </div>
+      )}
+    </ElectricianShell>
   );
 }
