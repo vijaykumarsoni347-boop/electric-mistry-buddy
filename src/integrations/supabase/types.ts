@@ -117,8 +117,10 @@ export type Database = {
           brand: string | null
           category: string | null
           category_id: string | null
+          cost_price: number
           created_at: string
           id: string
+          image_url: string | null
           low_stock_threshold: number
           name: string
           retail_price: number
@@ -131,8 +133,10 @@ export type Database = {
           brand?: string | null
           category?: string | null
           category_id?: string | null
+          cost_price?: number
           created_at?: string
           id?: string
+          image_url?: string | null
           low_stock_threshold?: number
           name: string
           retail_price: number
@@ -145,8 +149,10 @@ export type Database = {
           brand?: string | null
           category?: string | null
           category_id?: string | null
+          cost_price?: number
           created_at?: string
           id?: string
+          image_url?: string | null
           low_stock_threshold?: number
           name?: string
           retail_price?: number
