@@ -6,6 +6,8 @@ const productSchema = z.object({
   name: z.string().min(1),
   sku: z.string().optional(),
   category: z.string().optional(),
+  category_id: z.string().uuid().optional().nullable(),
+  brand: z.string().optional(),
   stock_quantity: z.number().int().min(0),
   wholesale_price: z.number().min(0),
   retail_price: z.number().min(0),
