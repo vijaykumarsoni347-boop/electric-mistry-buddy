@@ -45,7 +45,8 @@ function RateList() {
         !q ||
         p.name.toLowerCase().includes(q) ||
         (p.sku || "").toLowerCase().includes(q) ||
-        (p.category || "").toLowerCase().includes(q)
+        (p.category || "").toLowerCase().includes(q) ||
+        (p.brand || "").toLowerCase().includes(q)
     );
   }, [products, search]);
 
@@ -93,7 +94,7 @@ function RateList() {
                     <div>
                       <p className="font-medium">{p.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {p.category || "—"}
+                        {[p.category, p.brand].filter(Boolean).join(" • ") || "—"}
                         {p.sku ? ` · ${p.sku}` : ""}
                       </p>
                     </div>

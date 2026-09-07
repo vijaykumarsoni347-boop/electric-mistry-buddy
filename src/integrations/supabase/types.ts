@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       electrician_payments: {
         Row: {
           amount: number
@@ -93,7 +114,9 @@ export type Database = {
       }
       products: {
         Row: {
+          brand: string | null
           category: string | null
+          category_id: string | null
           created_at: string
           id: string
           low_stock_threshold: number
@@ -105,7 +128,9 @@ export type Database = {
           wholesale_price: number
         }
         Insert: {
+          brand?: string | null
           category?: string | null
+          category_id?: string | null
           created_at?: string
           id?: string
           low_stock_threshold?: number
@@ -117,7 +142,9 @@ export type Database = {
           wholesale_price: number
         }
         Update: {
+          brand?: string | null
           category?: string | null
+          category_id?: string | null
           created_at?: string
           id?: string
           low_stock_threshold?: number
@@ -128,7 +155,15 @@ export type Database = {
           updated_at?: string
           wholesale_price?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
