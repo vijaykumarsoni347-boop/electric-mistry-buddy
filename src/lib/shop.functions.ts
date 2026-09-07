@@ -37,6 +37,36 @@ const saleSchema = z.object({
   items: z.array(saleItemSchema).min(1),
 });
 
+export const getCategories = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase.from("categories").select("*").order("name");
+    if (error) throw new Error(error.message);
+    return data || [];
+  });
+
+export const createCategory = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ name: z.string().min(1) }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { data: cat, error } = await context.supabase
+      .from("categories")
+      .insert({ name: data.name.trim() })
+      .select()
+      .single();
+    if (error) throw new Error(error.message.includes("duplicate") ? "Yeh category pehle se hai" : error.message);
+    return cat;
+  });
+
+export const deleteCategory = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ id: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.from("categories").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { success: true };
+  });
+
 export const getProducts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -58,6 +88,8 @@ export const createProduct = createServerFn({ method: "POST" })
         name: data.name,
         sku: data.sku || null,
         category: data.category || null,
+        category_id: data.category_id || null,
+        brand: data.brand || null,
         stock_quantity: data.stock_quantity,
         wholesale_price: data.wholesale_price,
         retail_price: data.retail_price,
@@ -79,6 +111,8 @@ export const updateProduct = createServerFn({ method: "POST" })
         name: data.name,
         sku: data.sku || null,
         category: data.category || null,
+        category_id: data.category_id || null,
+        brand: data.brand || null,
         stock_quantity: data.stock_quantity,
         wholesale_price: data.wholesale_price,
         retail_price: data.retail_price,
