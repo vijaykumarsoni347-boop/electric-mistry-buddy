@@ -357,7 +357,10 @@ function InventoryPage() {
                   <Button
                     variant="destructive"
                     size="sm"
-                    onClick={() => deleteMutation.mutate({ data: { id: p.id } })}
+                    onClick={() => {
+                      setDeletePwd("");
+                      setDeleteTarget({ id: p.id, name: p.name });
+                    }}
                   >
                     Hatao
                   </Button>
@@ -367,6 +370,60 @@ function InventoryPage() {
           ))
         )}
       </main>
+
+      <Dialog
+        open={!!deleteTarget}
+        onOpenChange={(v) => {
+          if (!v) {
+            setDeleteTarget(null);
+            setDeletePwd("");
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Saman Hatana Hai?</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 pt-2">
+            <p className="text-sm">
+              <span className="font-semibold">{deleteTarget?.name}</span> hamesha ke liye hat jayega. Hataane ke liye
+              password daalein.
+            </p>
+            <Input
+              type="password"
+              className="h-12 text-base"
+              placeholder="Password"
+              value={deletePwd}
+              autoComplete="off"
+              onChange={(e) => setDeletePwd(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") confirmDelete();
+              }}
+            />
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="flex-1 h-12"
+                onClick={() => {
+                  setDeleteTarget(null);
+                  setDeletePwd("");
+                }}
+              >
+                Rehne Do
+              </Button>
+              <Button
+                variant="destructive"
+                className="flex-1 h-12"
+                disabled={!deletePwd || deleteMutation.isPending}
+                onClick={confirmDelete}
+              >
+                {deleteMutation.isPending ? "Ho raha hai..." : "Hatao"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
 
       <Dialog
         open={open}
