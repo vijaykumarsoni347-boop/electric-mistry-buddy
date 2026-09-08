@@ -16,7 +16,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { makeProductPdf, shareOrDownloadPdf } from "@/lib/product-pdf";
 import { toast } from "sonner";
+
+const DELETE_PASSWORD = "Qwertyuiop@9955";
 
 interface EditingProduct {
   id: string;
