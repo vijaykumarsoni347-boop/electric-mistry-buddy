@@ -293,6 +293,14 @@ function InventoryPage() {
               <CardContent className="p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex gap-3">
+                    {selectMode && (
+                      <Checkbox
+                        checked={selected.includes(p.id)}
+                        onCheckedChange={() => toggleSel(p.id)}
+                        aria-label={`${p.name} PDF me shamil karein`}
+                        className="mt-1 h-6 w-6"
+                      />
+                    )}
                     {p.image_url && (
                       <img
                         src={p.image_url}
