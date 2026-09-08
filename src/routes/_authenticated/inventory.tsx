@@ -98,6 +98,8 @@ function InventoryPage() {
     mutationFn: deleteProduct,
     onSuccess: () => {
       invalidate();
+      setDeleteTarget(null);
+      setDeletePwd("");
       toast.success("Saman hat gaya");
     },
     onError,
