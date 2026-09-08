@@ -378,19 +378,36 @@ function ProductForm({
           <Input name="stock_quantity" type="number" defaultValue={editing?.stock_quantity ?? 0} required />
         </div>
       </div>
+      <div>
+        <Label>Photo ka Link (agar ho)</Label>
+        <Input
+          name="image_url"
+          type="url"
+          defaultValue={editing?.image_url}
+          placeholder="https://... saman ki photo ka link"
+        />
+      </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <Label>Lagat (Aapka Rate)</Label>
-          <Input name="wholesale_price" type="number" step="0.01" defaultValue={editing?.wholesale_price ?? 0} required />
+          <Label>Lagat (aapne kitne ka khareeda)</Label>
+          <Input name="cost_price" type="number" step="0.01" defaultValue={editing?.cost_price ?? 0} required />
         </div>
         <div>
-          <Label>Grahak Ka Rate</Label>
-          <Input name="retail_price" type="number" step="0.01" defaultValue={editing?.retail_price ?? 0} required />
+          <Label>Mistri Ka Rate</Label>
+          <Input name="wholesale_price" type="number" step="0.01" defaultValue={editing?.wholesale_price ?? 0} required />
         </div>
       </div>
       <div>
-        <Label>Kam Hone Par Bataye</Label>
+        <Label>Grahak Ka Rate</Label>
+        <Input name="retail_price" type="number" step="0.01" defaultValue={editing?.retail_price ?? 0} required />
+      </div>
+      <div>
+        <Label>Stock kam hone ki chetavni</Label>
         <Input name="low_stock_threshold" type="number" defaultValue={editing?.low_stock_threshold ?? 10} required />
+        <p className="text-xs text-muted-foreground mt-1">
+          Jab itne se kam saman bachega, app laal rang mein "khatam ho raha hai" dikha degi. Jaise 10 likha to 9 bachne
+          par chetavni.
+        </p>
       </div>
       <Button type="submit" className="w-full h-12 text-base">
         {editing ? "Badlav Save Karein" : "Saman Jodo"}
