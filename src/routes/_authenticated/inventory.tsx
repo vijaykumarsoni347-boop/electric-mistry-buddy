@@ -52,6 +52,11 @@ function InventoryPage() {
   const [newCat, setNewCat] = useState("");
   const [editing, setEditing] = useState<EditingProduct | null>(null);
   const [activeCat, setActiveCat] = useState<string>("all");
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [deletePwd, setDeletePwd] = useState("");
+  const [selectMode, setSelectMode] = useState(false);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [pdfBusy, setPdfBusy] = useState(false);
 
   const { data: products, isLoading } = useQuery({
     queryKey: ["products"],
