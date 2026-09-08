@@ -202,22 +202,36 @@ function InventoryPage() {
               className={p.stock_quantity < p.low_stock_threshold ? "border-destructive/50" : ""}
             >
               <CardContent className="p-4">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-semibold">{p.name}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {[p.category, p.brand].filter(Boolean).join(" • ")}
-                    </p>
-                    <p className="text-sm">
-                      Bacha: {p.stock_quantity}
-                      {p.stock_quantity < p.low_stock_threshold && (
-                        <span className="text-destructive font-medium"> — khatam ho raha hai!</span>
-                      )}
-                    </p>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex gap-3">
+                    {p.image_url && (
+                      <img
+                        src={p.image_url}
+                        alt={`${p.name} ka photo`}
+                        loading="lazy"
+                        className="h-14 w-14 rounded-md object-cover border"
+                      />
+                    )}
+                    <div>
+                      <h3 className="font-semibold">{p.name}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {[p.category, p.brand].filter(Boolean).join(" • ")}
+                      </p>
+                      <p className="text-sm">
+                        Bacha: {p.stock_quantity}
+                        {p.stock_quantity < p.low_stock_threshold && (
+                          <span className="text-destructive font-medium"> — khatam ho raha hai!</span>
+                        )}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm">Lagat: ₹{p.wholesale_price}</p>
+                  <div className="text-right shrink-0">
+                    <p className="text-sm text-muted-foreground">Lagat: ₹{p.cost_price}</p>
+                    <p className="text-sm">Mistri ka rate: ₹{p.wholesale_price}</p>
                     <p className="text-sm font-medium">Grahak ka rate: ₹{p.retail_price}</p>
+                    <p className="text-sm text-green-600 font-medium">
+                      Mera Profit: ₹{Number(p.wholesale_price) - Number(p.cost_price)}
+                    </p>
                   </div>
                 </div>
                 <div className="mt-3 flex gap-2">
