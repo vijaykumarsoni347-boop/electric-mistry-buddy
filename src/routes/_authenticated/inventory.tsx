@@ -23,8 +23,10 @@ interface EditingProduct {
   name: string;
   sku: string;
   brand: string;
+  image_url: string;
   category_id: string;
   stock_quantity: number;
+  cost_price: number;
   wholesale_price: number;
   retail_price: number;
   low_stock_threshold: number;
