@@ -23,8 +23,10 @@ interface EditingProduct {
   name: string;
   sku: string;
   brand: string;
+  image_url: string;
   category_id: string;
   stock_quantity: number;
+  cost_price: number;
   wholesale_price: number;
   retail_price: number;
   low_stock_threshold: number;
@@ -125,9 +127,11 @@ function InventoryPage() {
       name: fd.get("name") as string,
       sku: (fd.get("sku") as string) || undefined,
       brand: (fd.get("brand") as string) || undefined,
+      image_url: (fd.get("image_url") as string)?.trim() || "",
       category_id: categoryId,
       category: cats.find((c) => c.id === categoryId)?.name,
       stock_quantity: Number(fd.get("stock_quantity")),
+      cost_price: Number(fd.get("cost_price")),
       wholesale_price: Number(fd.get("wholesale_price")),
       retail_price: Number(fd.get("retail_price")),
       low_stock_threshold: Number(fd.get("low_stock_threshold")),
@@ -198,22 +202,36 @@ function InventoryPage() {
               className={p.stock_quantity < p.low_stock_threshold ? "border-destructive/50" : ""}
             >
               <CardContent className="p-4">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-semibold">{p.name}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {[p.category, p.brand].filter(Boolean).join(" • ")}
-                    </p>
-                    <p className="text-sm">
-                      Bacha: {p.stock_quantity}
-                      {p.stock_quantity < p.low_stock_threshold && (
-                        <span className="text-destructive font-medium"> — khatam ho raha hai!</span>
-                      )}
-                    </p>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex gap-3">
+                    {p.image_url && (
+                      <img
+                        src={p.image_url}
+                        alt={`${p.name} ka photo`}
+                        loading="lazy"
+                        className="h-14 w-14 rounded-md object-cover border"
+                      />
+                    )}
+                    <div>
+                      <h3 className="font-semibold">{p.name}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {[p.category, p.brand].filter(Boolean).join(" • ")}
+                      </p>
+                      <p className="text-sm">
+                        Bacha: {p.stock_quantity}
+                        {p.stock_quantity < p.low_stock_threshold && (
+                          <span className="text-destructive font-medium"> — khatam ho raha hai!</span>
+                        )}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm">Lagat: ₹{p.wholesale_price}</p>
+                  <div className="text-right shrink-0">
+                    <p className="text-sm text-muted-foreground">Lagat: ₹{p.cost_price}</p>
+                    <p className="text-sm">Mistri ka rate: ₹{p.wholesale_price}</p>
                     <p className="text-sm font-medium">Grahak ka rate: ₹{p.retail_price}</p>
+                    <p className="text-sm text-green-600 font-medium">
+                      Mera Profit: ₹{Number(p.wholesale_price) - Number(p.cost_price)}
+                    </p>
                   </div>
                 </div>
                 <div className="mt-3 flex gap-2">
@@ -226,8 +244,10 @@ function InventoryPage() {
                         name: p.name,
                         sku: p.sku || "",
                         brand: p.brand || "",
+                        image_url: p.image_url || "",
                         category_id: p.category_id || "",
                         stock_quantity: p.stock_quantity,
+                        cost_price: p.cost_price,
                         wholesale_price: p.wholesale_price,
                         retail_price: p.retail_price,
                         low_stock_threshold: p.low_stock_threshold,
@@ -358,19 +378,36 @@ function ProductForm({
           <Input name="stock_quantity" type="number" defaultValue={editing?.stock_quantity ?? 0} required />
         </div>
       </div>
+      <div>
+        <Label>Photo ka Link (agar ho)</Label>
+        <Input
+          name="image_url"
+          type="url"
+          defaultValue={editing?.image_url}
+          placeholder="https://... saman ki photo ka link"
+        />
+      </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <Label>Lagat (Aapka Rate)</Label>
-          <Input name="wholesale_price" type="number" step="0.01" defaultValue={editing?.wholesale_price ?? 0} required />
+          <Label>Lagat (aapne kitne ka khareeda)</Label>
+          <Input name="cost_price" type="number" step="0.01" defaultValue={editing?.cost_price ?? 0} required />
         </div>
         <div>
-          <Label>Grahak Ka Rate</Label>
-          <Input name="retail_price" type="number" step="0.01" defaultValue={editing?.retail_price ?? 0} required />
+          <Label>Mistri Ka Rate</Label>
+          <Input name="wholesale_price" type="number" step="0.01" defaultValue={editing?.wholesale_price ?? 0} required />
         </div>
       </div>
       <div>
-        <Label>Kam Hone Par Bataye</Label>
+        <Label>Grahak Ka Rate</Label>
+        <Input name="retail_price" type="number" step="0.01" defaultValue={editing?.retail_price ?? 0} required />
+      </div>
+      <div>
+        <Label>Stock kam hone ki chetavni</Label>
         <Input name="low_stock_threshold" type="number" defaultValue={editing?.low_stock_threshold ?? 10} required />
+        <p className="text-xs text-muted-foreground mt-1">
+          Jab itne se kam saman bachega, app laal rang mein "khatam ho raha hai" dikha degi. Jaise 10 likha to 9 bachne
+          par chetavni.
+        </p>
       </div>
       <Button type="submit" className="w-full h-12 text-base">
         {editing ? "Badlav Save Karein" : "Saman Jodo"}
