@@ -169,6 +169,38 @@ function InventoryPage() {
     setOpen(true);
   };
 
+  const confirmDelete = () => {
+    if (deletePwd !== DELETE_PASSWORD) {
+      toast.error("Password galat hai");
+      return;
+    }
+    if (deleteTarget) deleteMutation.mutate({ data: { id: deleteTarget.id } });
+  };
+
+  const toggleSel = (id: string) =>
+    setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
+
+  const makePdf = async () => {
+    const chosen = list.filter((p) => selected.includes(p.id));
+    if (chosen.length === 0) {
+      toast.error("Pehle saman tick karein");
+      return;
+    }
+    setPdfBusy(true);
+    try {
+      const blob = await makeProductPdf(chosen);
+      const how = await shareOrDownloadPdf(blob, `rate-list-${new Date().toISOString().slice(0, 10)}.pdf`);
+      toast.success(how === "shared" ? "PDF bhej diya" : "PDF save ho gaya");
+      setSelectMode(false);
+      setSelected([]);
+    } catch {
+      toast.error("PDF nahi ban paya, dobara try karein");
+    } finally {
+      setPdfBusy(false);
+    }
+  };
+
+
   return (
     <OwnerShell title="Saman ki List">
       <main className="p-4 space-y-3">
