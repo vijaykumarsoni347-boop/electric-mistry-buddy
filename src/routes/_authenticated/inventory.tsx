@@ -213,6 +213,52 @@ function InventoryPage() {
           </Button>
         </div>
 
+        {selectMode ? (
+          <div className="rounded-lg border bg-muted/40 p-3 space-y-2">
+            <p className="text-sm font-medium">Jo saman PDF me chahiye, unhe tick karein ({selected.length} chune)</p>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1"
+                onClick={() => setSelected(list.map((p) => p.id))}
+              >
+                Sab Tick
+              </Button>
+              <Button variant="outline" size="sm" className="flex-1" onClick={() => setSelected([])}>
+                Sab Hatao
+              </Button>
+            </div>
+            <div className="flex gap-2">
+              <Button className="flex-1 h-12 text-base" disabled={pdfBusy} onClick={makePdf}>
+                {pdfBusy ? "Ban raha hai..." : "PDF Banao aur Bhejo"}
+              </Button>
+              <Button
+                variant="ghost"
+                className="h-12"
+                onClick={() => {
+                  setSelectMode(false);
+                  setSelected([]);
+                }}
+              >
+                Band
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <Button
+            variant="secondary"
+            className="w-full h-12 text-base"
+            onClick={() => {
+              setSelectMode(true);
+              setSelected(list.map((p) => p.id));
+            }}
+          >
+            📄 Rate List PDF Bhejo
+          </Button>
+        )}
+
+
         <div className="flex gap-2 overflow-x-auto pb-1">
           <Button
             size="sm"
