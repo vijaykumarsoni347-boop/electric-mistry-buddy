@@ -16,7 +16,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { makeProductPdf, shareOrDownloadPdf } from "@/lib/product-pdf";
 import { toast } from "sonner";
+
+const DELETE_PASSWORD = "Qwertyuiop@9955";
 
 interface EditingProduct {
   id: string;
@@ -48,6 +52,11 @@ function InventoryPage() {
   const [newCat, setNewCat] = useState("");
   const [editing, setEditing] = useState<EditingProduct | null>(null);
   const [activeCat, setActiveCat] = useState<string>("all");
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [deletePwd, setDeletePwd] = useState("");
+  const [selectMode, setSelectMode] = useState(false);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [pdfBusy, setPdfBusy] = useState(false);
 
   const { data: products, isLoading } = useQuery({
     queryKey: ["products"],
@@ -89,6 +98,8 @@ function InventoryPage() {
     mutationFn: deleteProduct,
     onSuccess: () => {
       invalidate();
+      setDeleteTarget(null);
+      setDeletePwd("");
       toast.success("Saman hat gaya");
     },
     onError,
@@ -158,6 +169,38 @@ function InventoryPage() {
     setOpen(true);
   };
 
+  const confirmDelete = () => {
+    if (deletePwd !== DELETE_PASSWORD) {
+      toast.error("Password galat hai");
+      return;
+    }
+    if (deleteTarget) deleteMutation.mutate({ data: { id: deleteTarget.id } });
+  };
+
+  const toggleSel = (id: string) =>
+    setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
+
+  const makePdf = async () => {
+    const chosen = list.filter((p) => selected.includes(p.id));
+    if (chosen.length === 0) {
+      toast.error("Pehle saman tick karein");
+      return;
+    }
+    setPdfBusy(true);
+    try {
+      const blob = await makeProductPdf(chosen);
+      const how = await shareOrDownloadPdf(blob, `rate-list-${new Date().toISOString().slice(0, 10)}.pdf`);
+      toast.success(how === "shared" ? "PDF bhej diya" : "PDF save ho gaya");
+      setSelectMode(false);
+      setSelected([]);
+    } catch {
+      toast.error("PDF nahi ban paya, dobara try karein");
+    } finally {
+      setPdfBusy(false);
+    }
+  };
+
+
   return (
     <OwnerShell title="Saman ki List">
       <main className="p-4 space-y-3">
@@ -169,6 +212,52 @@ function InventoryPage() {
             Category
           </Button>
         </div>
+
+        {selectMode ? (
+          <div className="rounded-lg border bg-muted/40 p-3 space-y-2">
+            <p className="text-sm font-medium">Jo saman PDF me chahiye, unhe tick karein ({selected.length} chune)</p>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1"
+                onClick={() => setSelected(list.map((p) => p.id))}
+              >
+                Sab Tick
+              </Button>
+              <Button variant="outline" size="sm" className="flex-1" onClick={() => setSelected([])}>
+                Sab Hatao
+              </Button>
+            </div>
+            <div className="flex gap-2">
+              <Button className="flex-1 h-12 text-base" disabled={pdfBusy} onClick={makePdf}>
+                {pdfBusy ? "Ban raha hai..." : "PDF Banao aur Bhejo"}
+              </Button>
+              <Button
+                variant="ghost"
+                className="h-12"
+                onClick={() => {
+                  setSelectMode(false);
+                  setSelected([]);
+                }}
+              >
+                Band
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <Button
+            variant="secondary"
+            className="w-full h-12 text-base"
+            onClick={() => {
+              setSelectMode(true);
+              setSelected(list.map((p) => p.id));
+            }}
+          >
+            📄 Rate List PDF Bhejo
+          </Button>
+        )}
+
 
         <div className="flex gap-2 overflow-x-auto pb-1">
           <Button
@@ -204,6 +293,14 @@ function InventoryPage() {
               <CardContent className="p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex gap-3">
+                    {selectMode && (
+                      <Checkbox
+                        checked={selected.includes(p.id)}
+                        onCheckedChange={() => toggleSel(p.id)}
+                        aria-label={`${p.name} PDF me shamil karein`}
+                        className="mt-1 h-6 w-6"
+                      />
+                    )}
                     {p.image_url && (
                       <img
                         src={p.image_url}
@@ -260,7 +357,10 @@ function InventoryPage() {
                   <Button
                     variant="destructive"
                     size="sm"
-                    onClick={() => deleteMutation.mutate({ data: { id: p.id } })}
+                    onClick={() => {
+                      setDeletePwd("");
+                      setDeleteTarget({ id: p.id, name: p.name });
+                    }}
                   >
                     Hatao
                   </Button>
@@ -270,6 +370,60 @@ function InventoryPage() {
           ))
         )}
       </main>
+
+      <Dialog
+        open={!!deleteTarget}
+        onOpenChange={(v) => {
+          if (!v) {
+            setDeleteTarget(null);
+            setDeletePwd("");
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Saman Hatana Hai?</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 pt-2">
+            <p className="text-sm">
+              <span className="font-semibold">{deleteTarget?.name}</span> hamesha ke liye hat jayega. Hataane ke liye
+              password daalein.
+            </p>
+            <Input
+              type="password"
+              className="h-12 text-base"
+              placeholder="Password"
+              value={deletePwd}
+              autoComplete="off"
+              onChange={(e) => setDeletePwd(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") confirmDelete();
+              }}
+            />
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="flex-1 h-12"
+                onClick={() => {
+                  setDeleteTarget(null);
+                  setDeletePwd("");
+                }}
+              >
+                Rehne Do
+              </Button>
+              <Button
+                variant="destructive"
+                className="flex-1 h-12"
+                disabled={!deletePwd || deleteMutation.isPending}
+                onClick={confirmDelete}
+              >
+                {deleteMutation.isPending ? "Ho raha hai..." : "Hatao"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
 
       <Dialog
         open={open}
