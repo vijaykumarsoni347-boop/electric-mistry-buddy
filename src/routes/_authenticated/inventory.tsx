@@ -329,9 +329,9 @@ function InventoryPage() {
                         className="mt-1 h-6 w-6"
                       />
                     )}
-                    {p.image_url && (
+                    {imgSrc(p.image_url) && (
                       <img
-                        src={p.image_url}
+                        src={imgSrc(p.image_url)}
                         alt={`${p.name} ka photo`}
                         loading="lazy"
                         className="h-14 w-14 rounded-md object-cover border"
