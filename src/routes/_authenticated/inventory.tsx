@@ -561,13 +561,11 @@ function ProductForm({
         </div>
       </div>
       <div>
-        <Label>Photo ka Link (agar ho)</Label>
-        <Input
-          name="image_url"
-          type="url"
-          defaultValue={editing?.image_url}
-          placeholder="https://... saman ki photo ka link"
-        />
+        <Label>Saman ki Photo</Label>
+        <Input name="image_file" type="file" accept="image/*" className="h-12 text-base" />
+        <p className="text-xs text-muted-foreground mt-1">
+          Phone se photo chunein ya camera se kheenchein. {editing?.image_url ? "Nahi chunenge to purani photo rahegi." : ""}
+        </p>
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
