@@ -18,6 +18,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { makeProductPdf, shareOrDownloadPdf } from "@/lib/product-pdf";
+import { uploadProductImage, resolveImageUrls } from "@/lib/product-image";
 import { toast } from "sonner";
 
 const DELETE_PASSWORD = "Qwertyuiop@9955";
@@ -57,11 +58,20 @@ function InventoryPage() {
   const [selectMode, setSelectMode] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const { data: products, isLoading } = useQuery({
     queryKey: ["products"],
     queryFn: () => getProducts(),
   });
+
+  const imageKeys = (products ?? []).map((p) => p.image_url).filter(Boolean) as string[];
+  const { data: imageMap } = useQuery({
+    queryKey: ["product-images", imageKeys.slice().sort().join(",")],
+    queryFn: () => resolveImageUrls(imageKeys),
+    enabled: imageKeys.length > 0,
+  });
+  const imgSrc = (v?: string | null) => (v ? imageMap?.[v] : undefined);
 
   const { data: categories } = useQuery({
     queryKey: ["categories"],
