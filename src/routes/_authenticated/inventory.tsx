@@ -18,7 +18,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { makeProductPdf, shareOrDownloadPdf } from "@/lib/product-pdf";
-import { uploadProductImage, resolveImageUrls } from "@/lib/product-image";
 import { toast } from "sonner";
 
 const DELETE_PASSWORD = "Qwertyuiop@9955";
@@ -58,20 +57,11 @@ function InventoryPage() {
   const [selectMode, setSelectMode] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
   const [pdfBusy, setPdfBusy] = useState(false);
-  const [uploading, setUploading] = useState(false);
 
   const { data: products, isLoading } = useQuery({
     queryKey: ["products"],
     queryFn: () => getProducts(),
   });
-
-  const imageKeys = (products ?? []).map((p) => p.image_url).filter(Boolean) as string[];
-  const { data: imageMap } = useQuery({
-    queryKey: ["product-images", imageKeys.slice().sort().join(",")],
-    queryFn: () => resolveImageUrls(imageKeys),
-    enabled: imageKeys.length > 0,
-  });
-  const imgSrc = (v?: string | null) => (v ? imageMap?.[v] : undefined);
 
   const { data: categories } = useQuery({
     queryKey: ["categories"],
@@ -136,7 +126,7 @@ function InventoryPage() {
 
   const cats: Category[] = (categories ?? []).map((c) => ({ id: c.id, name: c.name }));
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     const categoryId = (fd.get("category_id") as string) || "";
@@ -144,26 +134,11 @@ function InventoryPage() {
       toast.error("Pehle category chunein");
       return;
     }
-
-    let imageValue = editing?.image_url ?? "";
-    const file = fd.get("image_file") as File | null;
-    if (file && file.size > 0) {
-      setUploading(true);
-      try {
-        imageValue = await uploadProductImage(file);
-      } catch {
-        setUploading(false);
-        toast.error("Photo upload nahi hui, dobara try karein");
-        return;
-      }
-      setUploading(false);
-    }
-
     const payload = {
       name: fd.get("name") as string,
       sku: (fd.get("sku") as string) || undefined,
       brand: (fd.get("brand") as string) || undefined,
-      image_url: imageValue,
+      image_url: (fd.get("image_url") as string)?.trim() || "",
       category_id: categoryId,
       category: cats.find((c) => c.id === categoryId)?.name,
       stock_quantity: Number(fd.get("stock_quantity")),
@@ -213,10 +188,7 @@ function InventoryPage() {
     }
     setPdfBusy(true);
     try {
-      const urls = await resolveImageUrls(chosen.map((p) => p.image_url).filter(Boolean) as string[]);
-      const blob = await makeProductPdf(
-        chosen.map((p) => ({ ...p, image_url: p.image_url ? (urls[p.image_url] ?? null) : null })),
-      );
+      const blob = await makeProductPdf(chosen);
       const how = await shareOrDownloadPdf(blob, `rate-list-${new Date().toISOString().slice(0, 10)}.pdf`);
       toast.success(how === "shared" ? "PDF bhej diya" : "PDF save ho gaya");
       setSelectMode(false);
@@ -329,9 +301,9 @@ function InventoryPage() {
                         className="mt-1 h-6 w-6"
                       />
                     )}
-                    {imgSrc(p.image_url) && (
+                    {p.image_url && (
                       <img
-                        src={imgSrc(p.image_url)}
+                        src={p.image_url}
                         alt={`${p.name} ka photo`}
                         loading="lazy"
                         className="h-14 w-14 rounded-md object-cover border"
@@ -464,7 +436,7 @@ function InventoryPage() {
           <DialogHeader>
             <DialogTitle>{editing ? "Saman Badlo" : "Naya Saman"}</DialogTitle>
           </DialogHeader>
-          <ProductForm onSubmit={handleSubmit} editing={editing} cats={cats} busy={uploading} />
+          <ProductForm onSubmit={handleSubmit} editing={editing} cats={cats} />
         </DialogContent>
       </Dialog>
 
@@ -517,12 +489,10 @@ function ProductForm({
   onSubmit,
   editing,
   cats,
-  busy,
 }: {
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   editing: EditingProduct | null;
   cats: Category[];
-  busy?: boolean;
 }) {
   return (
     <form onSubmit={onSubmit} className="space-y-3 pt-2">
@@ -563,11 +533,13 @@ function ProductForm({
         </div>
       </div>
       <div>
-        <Label>Saman ki Photo</Label>
-        <Input name="image_file" type="file" accept="image/*" className="h-12 text-base" />
-        <p className="text-xs text-muted-foreground mt-1">
-          Phone se photo chunein ya camera se kheenchein. {editing?.image_url ? "Nahi chunenge to purani photo rahegi." : ""}
-        </p>
+        <Label>Photo ka Link (agar ho)</Label>
+        <Input
+          name="image_url"
+          type="url"
+          defaultValue={editing?.image_url}
+          placeholder="https://... saman ki photo ka link"
+        />
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
@@ -591,8 +563,8 @@ function ProductForm({
           par chetavni.
         </p>
       </div>
-      <Button type="submit" className="w-full h-12 text-base" disabled={busy}>
-        {busy ? "Photo chadh rahi hai..." : editing ? "Badlav Save Karein" : "Saman Jodo"}
+      <Button type="submit" className="w-full h-12 text-base">
+        {editing ? "Badlav Save Karein" : "Saman Jodo"}
       </Button>
     </form>
   );
