@@ -136,7 +136,7 @@ function InventoryPage() {
 
   const cats: Category[] = (categories ?? []).map((c) => ({ id: c.id, name: c.name }));
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     const categoryId = (fd.get("category_id") as string) || "";
@@ -144,6 +144,21 @@ function InventoryPage() {
       toast.error("Pehle category chunein");
       return;
     }
+
+    let imageValue = editing?.image_url ?? "";
+    const file = fd.get("image_file") as File | null;
+    if (file && file.size > 0) {
+      setUploading(true);
+      try {
+        imageValue = await uploadProductImage(file);
+      } catch {
+        setUploading(false);
+        toast.error("Photo upload nahi hui, dobara try karein");
+        return;
+      }
+      setUploading(false);
+    }
+
     const payload = {
       name: fd.get("name") as string,
       sku: (fd.get("sku") as string) || undefined,
