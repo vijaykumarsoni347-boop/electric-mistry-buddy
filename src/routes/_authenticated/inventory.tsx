@@ -591,8 +591,8 @@ function ProductForm({
           par chetavni.
         </p>
       </div>
-      <Button type="submit" className="w-full h-12 text-base">
-        {editing ? "Badlav Save Karein" : "Saman Jodo"}
+      <Button type="submit" className="w-full h-12 text-base" disabled={busy}>
+        {busy ? "Photo chadh rahi hai..." : editing ? "Badlav Save Karein" : "Saman Jodo"}
       </Button>
     </form>
   );
