@@ -163,7 +163,7 @@ function InventoryPage() {
       name: fd.get("name") as string,
       sku: (fd.get("sku") as string) || undefined,
       brand: (fd.get("brand") as string) || undefined,
-      image_url: (fd.get("image_url") as string)?.trim() || "",
+      image_url: imageValue,
       category_id: categoryId,
       category: cats.find((c) => c.id === categoryId)?.name,
       stock_quantity: Number(fd.get("stock_quantity")),
