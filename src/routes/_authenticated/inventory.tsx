@@ -464,7 +464,7 @@ function InventoryPage() {
           <DialogHeader>
             <DialogTitle>{editing ? "Saman Badlo" : "Naya Saman"}</DialogTitle>
           </DialogHeader>
-          <ProductForm onSubmit={handleSubmit} editing={editing} cats={cats} />
+          <ProductForm onSubmit={handleSubmit} editing={editing} cats={cats} busy={uploading} />
         </DialogContent>
       </Dialog>
 
