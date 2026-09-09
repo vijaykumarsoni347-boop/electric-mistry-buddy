@@ -213,7 +213,10 @@ function InventoryPage() {
     }
     setPdfBusy(true);
     try {
-      const blob = await makeProductPdf(chosen);
+      const urls = await resolveImageUrls(chosen.map((p) => p.image_url).filter(Boolean) as string[]);
+      const blob = await makeProductPdf(
+        chosen.map((p) => ({ ...p, image_url: p.image_url ? (urls[p.image_url] ?? null) : null })),
+      );
       const how = await shareOrDownloadPdf(blob, `rate-list-${new Date().toISOString().slice(0, 10)}.pdf`);
       toast.success(how === "shared" ? "PDF bhej diya" : "PDF save ho gaya");
       setSelectMode(false);
