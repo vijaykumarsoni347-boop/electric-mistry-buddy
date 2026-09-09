@@ -18,7 +18,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { makeProductPdf, shareOrDownloadPdf } from "@/lib/product-pdf";
-import { uploadProductImage, resolveImageUrl } from "@/lib/product-image";
 import { toast } from "sonner";
 
 const DELETE_PASSWORD = "Qwertyuiop@9955";
@@ -189,10 +188,7 @@ function InventoryPage() {
     }
     setPdfBusy(true);
     try {
-      const withImages = await Promise.all(
-        chosen.map(async (p) => ({ ...p, image_url: await resolveImageUrl(p.image_url) })),
-      );
-      const blob = await makeProductPdf(withImages);
+      const blob = await makeProductPdf(chosen);
       const how = await shareOrDownloadPdf(blob, `rate-list-${new Date().toISOString().slice(0, 10)}.pdf`);
       toast.success(how === "shared" ? "PDF bhej diya" : "PDF save ho gaya");
       setSelectMode(false);
@@ -305,7 +301,14 @@ function InventoryPage() {
                         className="mt-1 h-6 w-6"
                       />
                     )}
-                    <ProductImage value={p.image_url} name={p.name} />
+                    {p.image_url && (
+                      <img
+                        src={p.image_url}
+                        alt={`${p.name} ka photo`}
+                        loading="lazy"
+                        className="h-14 w-14 rounded-md object-cover border"
+                      />
+                    )}
                     <div>
                       <h3 className="font-semibold">{p.name}</h3>
                       <p className="text-sm text-muted-foreground">
