@@ -517,10 +517,12 @@ function ProductForm({
   onSubmit,
   editing,
   cats,
+  busy,
 }: {
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   editing: EditingProduct | null;
   cats: Category[];
+  busy?: boolean;
 }) {
   return (
     <form onSubmit={onSubmit} className="space-y-3 pt-2">
