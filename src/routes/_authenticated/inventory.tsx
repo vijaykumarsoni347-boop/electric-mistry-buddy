@@ -189,7 +189,10 @@ function InventoryPage() {
     }
     setPdfBusy(true);
     try {
-      const blob = await makeProductPdf(chosen);
+      const withImages = await Promise.all(
+        chosen.map(async (p) => ({ ...p, image_url: await resolveImageUrl(p.image_url) })),
+      );
+      const blob = await makeProductPdf(withImages);
       const how = await shareOrDownloadPdf(blob, `rate-list-${new Date().toISOString().slice(0, 10)}.pdf`);
       toast.success(how === "shared" ? "PDF bhej diya" : "PDF save ho gaya");
       setSelectMode(false);
@@ -302,14 +305,7 @@ function InventoryPage() {
                         className="mt-1 h-6 w-6"
                       />
                     )}
-                    {p.image_url && (
-                      <img
-                        src={p.image_url}
-                        alt={`${p.name} ka photo`}
-                        loading="lazy"
-                        className="h-14 w-14 rounded-md object-cover border"
-                      />
-                    )}
+                    <ProductImage value={p.image_url} name={p.name} />
                     <div>
                       <h3 className="font-semibold">{p.name}</h3>
                       <p className="text-sm text-muted-foreground">
