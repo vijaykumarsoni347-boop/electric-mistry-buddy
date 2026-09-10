@@ -5,6 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 const productSchema = z.object({
   name: z.string().min(1),
   sku: z.string().optional(),
+  barcode: z.string().optional(),
   category: z.string().optional(),
   category_id: z.string().uuid().optional().nullable(),
   brand: z.string().optional(),
@@ -89,6 +90,7 @@ export const createProduct = createServerFn({ method: "POST" })
       .insert({
         name: data.name,
         sku: data.sku || null,
+        barcode: data.barcode?.trim() || null,
         category: data.category || null,
         category_id: data.category_id || null,
         brand: data.brand || null,
@@ -114,6 +116,7 @@ export const updateProduct = createServerFn({ method: "POST" })
       .update({
         name: data.name,
         sku: data.sku || null,
+        barcode: data.barcode?.trim() || null,
         category: data.category || null,
         category_id: data.category_id || null,
         brand: data.brand || null,
