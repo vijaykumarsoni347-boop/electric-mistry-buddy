@@ -169,7 +169,7 @@ function BillingPage() {
             />
           </div>
           <p className="text-xs text-muted-foreground">
-            Scanner uthaइye aur saman ka bar code scan karein — saman apne aap bill me jud jayega.
+            Scanner uthaiye aur saman ka bar code scan karein — saman apne aap bill me jud jayega.
           </p>
 
           <div className="relative">
