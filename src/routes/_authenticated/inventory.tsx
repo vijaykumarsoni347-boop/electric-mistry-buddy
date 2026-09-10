@@ -26,6 +26,7 @@ interface EditingProduct {
   id: string;
   name: string;
   sku: string;
+  barcode: string;
   brand: string;
   image_url: string;
   category_id: string;
@@ -137,6 +138,7 @@ function InventoryPage() {
     const payload = {
       name: fd.get("name") as string,
       sku: (fd.get("sku") as string) || undefined,
+      barcode: ((fd.get("barcode") as string) || "").trim() || undefined,
       brand: (fd.get("brand") as string) || undefined,
       image_url: (fd.get("image_url") as string)?.trim() || "",
       category_id: categoryId,
@@ -314,6 +316,9 @@ function InventoryPage() {
                       <p className="text-sm text-muted-foreground">
                         {[p.category, p.brand].filter(Boolean).join(" • ")}
                       </p>
+                      {p.barcode && (
+                        <p className="text-xs text-muted-foreground">Bar Code: {p.barcode}</p>
+                      )}
                       <p className="text-sm">
                         Bacha: {p.stock_quantity}
                         {p.stock_quantity < p.low_stock_threshold && (
@@ -340,6 +345,7 @@ function InventoryPage() {
                         id: p.id,
                         name: p.name,
                         sku: p.sku || "",
+                        barcode: p.barcode || "",
                         brand: p.brand || "",
                         image_url: p.image_url || "",
                         category_id: p.category_id || "",
@@ -531,6 +537,20 @@ function ProductForm({
           <Label>Kitna Hai (Stock)</Label>
           <Input name="stock_quantity" type="number" defaultValue={editing?.stock_quantity ?? 0} required />
         </div>
+      </div>
+      <div>
+        <Label>Bar Code (scanner se)</Label>
+        <Input
+          name="barcode"
+          defaultValue={editing?.barcode}
+          placeholder="Yahan click karke scanner se scan karein"
+          inputMode="numeric"
+          autoComplete="off"
+        />
+        <p className="text-xs text-muted-foreground mt-1">
+          Is khane me click karke saman ka bar code scan karein. Bill banate waqt scan karne par yeh saman apne aap
+          bill me jud jayega.
+        </p>
       </div>
       <div>
         <Label>Photo ka Link (agar ho)</Label>

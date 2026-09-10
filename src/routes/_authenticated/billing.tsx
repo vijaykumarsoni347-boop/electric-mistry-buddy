@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getProducts, getElectricians, createSale } from "@/lib/shop.functions";
 import { OwnerShell } from "@/components/owner-shell";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search } from "lucide-react";
+import { Search, ScanLine } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/billing")({
@@ -29,12 +29,14 @@ function BillingPage() {
   const queryClient = useQueryClient();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [search, setSearch] = useState("");
+  const [scan, setScan] = useState("");
   const [customerName, setCustomerName] = useState("");
-  const [electricianId, setElectricianId] = useState<string>("");
+  const [electricianId, setElectricianId] = useState<string>("none");
   const [paymentMode, setPaymentMode] = useState<"cash" | "credit" | "upi" | "other">("cash");
   const [amountPaid, setAmountPaid] = useState("");
+  const scanRef = useRef<HTMLInputElement>(null);
 
-  const { data: products } = useQuery({
+  const { data: products, isLoading, error } = useQuery({
     queryKey: ["products"],
     queryFn: () => getProducts(),
   });
@@ -44,6 +46,10 @@ function BillingPage() {
     queryFn: () => getElectricians(),
   });
 
+  useEffect(() => {
+    scanRef.current?.focus();
+  }, []);
+
   const filteredProducts = useMemo(() => {
     const q = search.trim().toLowerCase();
     return (products || []).filter(
@@ -51,6 +57,8 @@ function BillingPage() {
         !q ||
         p.name.toLowerCase().includes(q) ||
         (p.sku || "").toLowerCase().includes(q) ||
+        (p.barcode || "").toLowerCase().includes(q) ||
+        (p.brand || "").toLowerCase().includes(q) ||
         (p.category || "").toLowerCase().includes(q)
     );
   }, [products, search]);
@@ -62,7 +70,7 @@ function BillingPage() {
       queryClient.invalidateQueries({ queryKey: ["sales"] });
       setCart([]);
       setCustomerName("");
-      setElectricianId("");
+      setElectricianId("none");
       setAmountPaid("");
       toast.success("Bill ban gaya");
     },
@@ -90,6 +98,23 @@ function BillingPage() {
     });
   };
 
+  const handleScan = (code: string) => {
+    const c = code.trim().toLowerCase();
+    if (!c) return;
+    const hit = (products || []).find(
+      (p) => (p.barcode || "").toLowerCase() === c || (p.sku || "").toLowerCase() === c
+    );
+    if (hit) {
+      addToCart(hit);
+      toast.success(`${hit.name} bill me jud gaya`);
+      setScan("");
+    } else {
+      toast.error("Is bar code ka saman nahi mila");
+      setSearch(code.trim());
+      setScan("");
+    }
+  };
+
   const updateQty = (id: string, delta: number) => {
     setCart((prev) =>
       prev
@@ -109,7 +134,7 @@ function BillingPage() {
     saleMutation.mutate({
       data: {
         customer_name: customerName,
-        electrician_id: electricianId || null,
+        electrician_id: electricianId === "none" ? null : electricianId,
         payment_mode: paymentMode,
         amount_paid: Number(amountPaid) || 0,
         items: cart.map((i) => ({
@@ -127,28 +152,70 @@ function BillingPage() {
       <main className="p-4 grid gap-4 lg:grid-cols-2">
         <div className="space-y-3">
           <div className="relative">
+            <ScanLine className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-primary" />
+            <Input
+              ref={scanRef}
+              className="pl-10 h-12 text-base"
+              placeholder="Bar code scan karein"
+              value={scan}
+              autoComplete="off"
+              onChange={(e) => setScan(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleScan(scan);
+                }
+              }}
+            />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Scanner uthaiye aur saman ka bar code scan karein — saman apne aap bill me jud jayega.
+          </p>
+
+          <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              className="pl-9"
-              placeholder="Saman ka naam likhein..."
+              className="pl-9 h-12 text-base"
+              placeholder="Ya naam / code likh kar dhoondein"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {filteredProducts.map((p) => (
-              <Card key={p.id} className="cursor-pointer hover:bg-accent" onClick={() => addToCart(p)}>
-                <CardContent className="p-3">
-                  <p className="font-medium">{p.name}</p>
-                  <p className="text-sm text-muted-foreground">Bacha: {p.stock_quantity}</p>
-                  <p className="text-sm font-semibold">{money(p.retail_price)}</p>
-                </CardContent>
-              </Card>
-            ))}
-            {filteredProducts.length === 0 && (
-              <p className="text-sm text-muted-foreground">Koi saman nahi mila</p>
-            )}
-          </div>
+
+          <h2 className="font-semibold">Saman Chunein</h2>
+          {isLoading ? (
+            <p className="text-muted-foreground">Thoda rukiye...</p>
+          ) : error ? (
+            <p className="text-destructive">Saman nahi aaya, page dobara kholein</p>
+          ) : (
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {filteredProducts.map((p) => (
+                <Card key={p.id} className="cursor-pointer hover:bg-accent" onClick={() => addToCart(p)}>
+                  <CardContent className="p-3 flex gap-3 items-center">
+                    {p.image_url && (
+                      <img
+                        src={p.image_url}
+                        alt={`${p.name} ka photo`}
+                        loading="lazy"
+                        className="h-12 w-12 rounded-md object-cover border"
+                      />
+                    )}
+                    <div className="min-w-0">
+                      <p className="font-medium truncate">{p.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {[p.brand, p.category].filter(Boolean).join(" • ")}
+                      </p>
+                      <p className="text-sm text-muted-foreground">Bacha: {p.stock_quantity}</p>
+                      <p className="text-sm font-semibold">{money(p.retail_price)}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+              {filteredProducts.length === 0 && (
+                <p className="text-sm text-muted-foreground">Koi saman nahi mila</p>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="space-y-3">
@@ -191,7 +258,7 @@ function BillingPage() {
                     <SelectValue placeholder="Mistri chunein" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Koi mistri nahi</SelectItem>
+                    <SelectItem value="none">Koi mistri nahi</SelectItem>
                     {electricians?.map((e) => (
                       <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>
                     ))}
