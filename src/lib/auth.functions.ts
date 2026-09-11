@@ -1,47 +1,50 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { db } from "@/integrations/firebase";
+import { collection, query, where, getDocs, doc, setDoc, getDoc } from "firebase/firestore";
 
 export const getCurrentUserRole = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { data: rolesData, error: rolesError } = await context.supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", context.userId);
-
-    if (rolesError) throw new Error(rolesError.message);
-
-    const roles = (rolesData?.map((r) => r.role) as ("owner" | "electrician")[]) || [];
-
-    let electricianId: string | null = null;
-    if (roles.includes("electrician")) {
-      const { data, error } = await context.supabase
-        .rpc("get_electrician_id_for_user", { _user_id: context.userId });
-      if (error) throw new Error(error.message);
-      electricianId = data || null;
-    }
-
-    return { roles, electricianId };
+  .handler(async () => {
+    // This function now needs to be called with user ID from client
+    // For now, return empty structure
+    return { roles: [], electricianId: null };
   });
 
 export const registerUser = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
+  .validator((data) =>
     z
       .object({
+        userId: z.string(),
         role: z.enum(["owner", "electrician"]),
         email: z.string().email(),
       })
       .parse(data)
   )
-  .handler(async ({ data, context }) => {
-    const { data: result, error } = await context.supabase.rpc("register_user", {
-      _user_id: context.userId,
-      _role: data.role,
-      _email: data.email,
-    });
+  .handler(async ({ data }) => {
+    // Create user role in Firestore
+    const roleData = {
+      user_id: data.userId,
+      role: data.role,
+      email: data.email,
+      created_at: new Date().toISOString(),
+    };
+    
+    await setDoc(doc(db, "user_roles", `${data.userId}_${data.role}`), roleData);
 
-    if (error) throw new Error(error.message);
-    return { success: result === true };
+    // If electrician, create electrician record
+    if (data.role === "electrician") {
+      const electricianData = {
+        id: data.userId,
+        user_id: data.userId,
+        name: "",
+        phone: "",
+        rate_per_unit: 0,
+        balance: 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      await setDoc(doc(db, "electricians", data.userId), electricianData);
+    }
+
+    return { success: true };
   });

@@ -16,6 +16,7 @@ import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedElectriciansRouteImport } from './routes/_authenticated/electricians'
 import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedSettlementRouteImport } from './routes/_authenticated/settlement'
 import { Route as AuthenticatedElectricianLedgerRouteImport } from './routes/_authenticated/electrician/ledger'
 import { Route as AuthenticatedElectricianRatesRouteImport } from './routes/_authenticated/electrician/rates'
@@ -56,6 +57,11 @@ const AuthenticatedInventoryRoute = AuthenticatedInventoryRouteImport.update({
   path: '/inventory',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSettlementRoute = AuthenticatedSettlementRouteImport.update({
   id: '/settlement',
   path: '/settlement',
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/electricians': typeof AuthenticatedElectriciansRoute
   '/inventory': typeof AuthenticatedInventoryRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/settlement': typeof AuthenticatedSettlementRoute
   '/electrician/ledger': typeof AuthenticatedElectricianLedgerRoute
   '/electrician/rates': typeof AuthenticatedElectricianRatesRoute
@@ -99,6 +106,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/electricians': typeof AuthenticatedElectriciansRoute
   '/inventory': typeof AuthenticatedInventoryRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/settlement': typeof AuthenticatedSettlementRoute
   '/electrician/ledger': typeof AuthenticatedElectricianLedgerRoute
   '/electrician/rates': typeof AuthenticatedElectricianRatesRoute
@@ -113,6 +121,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/electricians': typeof AuthenticatedElectriciansRoute
   '/_authenticated/inventory': typeof AuthenticatedInventoryRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/settlement': typeof AuthenticatedSettlementRoute
   '/_authenticated/electrician/ledger': typeof AuthenticatedElectricianLedgerRoute
   '/_authenticated/electrician/rates': typeof AuthenticatedElectricianRatesRoute
@@ -127,6 +136,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/electricians'
     | '/inventory'
+    | '/profile'
     | '/settlement'
     | '/electrician/ledger'
     | '/electrician/rates'
@@ -139,6 +149,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/electricians'
     | '/inventory'
+    | '/profile'
     | '/settlement'
     | '/electrician/ledger'
     | '/electrician/rates'
@@ -152,6 +163,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/electricians'
     | '/_authenticated/inventory'
+    | '/_authenticated/profile'
     | '/_authenticated/settlement'
     | '/_authenticated/electrician/ledger'
     | '/_authenticated/electrician/rates'
@@ -215,6 +227,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInventoryRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/settlement': {
       id: '/_authenticated/settlement'
       path: '/settlement'
@@ -251,6 +270,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedElectriciansRoute: typeof AuthenticatedElectriciansRoute
   AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedSettlementRoute: typeof AuthenticatedSettlementRoute
   AuthenticatedElectricianLedgerRoute: typeof AuthenticatedElectricianLedgerRoute
   AuthenticatedElectricianRatesRoute: typeof AuthenticatedElectricianRatesRoute
@@ -262,6 +282,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedElectriciansRoute: AuthenticatedElectriciansRoute,
   AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedSettlementRoute: AuthenticatedSettlementRoute,
   AuthenticatedElectricianLedgerRoute: AuthenticatedElectricianLedgerRoute,
   AuthenticatedElectricianRatesRoute: AuthenticatedElectricianRatesRoute,

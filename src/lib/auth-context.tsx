@@ -1,19 +1,47 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import type { User } from "@supabase/supabase-js";
-import type { Tables } from "@/integrations/supabase/types";
+import { auth, db } from "@/integrations/firebase";
+import { 
+  onAuthStateChanged, 
+  type User as FirebaseUser,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut as firebaseSignOut
+} from "firebase/auth";
+import { 
+  doc, 
+  getDoc, 
+  collection, 
+  getDocs, 
+  query, 
+  where,
+  setDoc,
+  serverTimestamp
+} from "firebase/firestore";
+import { ensureAdminOwnerRole } from "@/lib/admin-setup";
 
 type AppRole = "owner" | "electrician";
 
+export interface UserProfile {
+  id: string;
+  email: string;
+  full_name?: string;
+  phone?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 interface AuthContextValue {
-  user: User | null;
-  profile: Tables<"profiles"> | null;
+  user: FirebaseUser | null;
+  profile: UserProfile | null;
   roles: AppRole[];
   isLoading: boolean;
   isAuthenticated: boolean;
   isOwner: boolean;
   isElectrician: boolean;
   refresh: () => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue>({
@@ -25,50 +53,97 @@ const AuthContext = createContext<AuthContextValue>({
   isOwner: false,
   isElectrician: false,
   refresh: async () => {},
+  signIn: async () => {},
+  signUp: async () => {},
+  signOut: async () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<Tables<"profiles"> | null>(null);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const refresh = async () => {
     try {
-      const { data: userData, error: userError } = await supabase.auth.getUser();
-      if (userError || !userData.user) {
-        setUser(null);
+      if (!user) {
         setProfile(null);
         setRoles([]);
         return;
       }
 
-      setUser(userData.user);
+      // Get user profile from Firestore
+      const profileDoc = await getDoc(doc(db, "profiles", user.uid));
+      if (profileDoc.exists()) {
+        setProfile(profileDoc.data() as UserProfile);
+      } else {
+        // Create profile if it doesn't exist
+        const newProfile: UserProfile = {
+          id: user.uid,
+          email: user.email || "",
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        await setDoc(doc(db, "profiles", user.uid), newProfile);
+        setProfile(newProfile);
+      }
 
-      const [{ data: profileData }, { data: rolesData }] = await Promise.all([
-        supabase.from("profiles").select("*").eq("id", userData.user.id).single(),
-        supabase.from("user_roles").select("role").eq("user_id", userData.user.id),
-      ]);
+      // Get user roles from Firestore
+      const rolesQuery = query(collection(db, "user_roles"), where("user_id", "==", user.uid));
+      const rolesSnapshot = await getDocs(rolesQuery);
+      const userRoles = rolesSnapshot.docs.map(doc => doc.data().role as AppRole);
+      setRoles(userRoles);
 
-      setProfile(profileData || null);
-      setRoles((rolesData?.map((r) => r.role) as AppRole[]) || []);
     } finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    refresh();
+  const signIn = async (email: string, password: string) => {
+    await signInWithEmailAndPassword(auth, email, password);
+  };
 
-    const { data: listener } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
+  const signUp = async (email: string, password: string) => {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    // Create profile for new user
+    const newProfile: UserProfile = {
+      id: userCredential.user.uid,
+      email: email,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    await setDoc(doc(db, "profiles", userCredential.user.uid), newProfile);
+
+    // Auto-assign owner role to admin email
+    if (email === "teamsg697@gmail.com") {
+      await setDoc(doc(db, "user_roles", `${userCredential.user.uid}_owner`), {
+        user_id: userCredential.user.uid,
+        role: "owner",
+        email: email,
+        created_at: new Date().toISOString(),
+      });
+    }
+  };
+
+  const signOut = async () => {
+    await firebaseSignOut(auth);
+  };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
+      setIsLoading(false);
+      if (currentUser) {
+        // Ensure admin has owner role
+        await ensureAdminOwnerRole(currentUser);
         refresh();
+      } else {
+        setProfile(null);
+        setRoles([]);
       }
     });
 
-    return () => {
-      listener.subscription.unsubscribe();
-    };
+    return () => unsubscribe();
   }, []);
 
   return (
@@ -82,6 +157,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isOwner: roles.includes("owner"),
         isElectrician: roles.includes("electrician"),
         refresh,
+        signIn,
+        signUp,
+        signOut,
       }}
     >
       {children}

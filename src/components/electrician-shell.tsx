@@ -1,14 +1,15 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
-import { LogOut, ListOrdered, Wallet } from "lucide-react";
+import { LogOut, ListOrdered, Wallet, User } from "lucide-react";
 import { toast } from "sonner";
 import type { ReactNode } from "react";
 
 const navItems = [
   { to: "/electrician/rates", label: "Rate List", icon: ListOrdered },
   { to: "/electrician/ledger", label: "Mera Hisaab", icon: Wallet },
+  { to: "/profile", label: "Profile", icon: User },
 ] as const;
 
 export function ElectricianShell({
@@ -20,11 +21,12 @@ export function ElectricianShell({
 }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { signOut } = useAuth();
 
   const handleSignOut = async () => {
     await queryClient.cancelQueries();
     queryClient.clear();
-    await supabase.auth.signOut();
+    await signOut();
     navigate({ to: "/auth", replace: true });
     toast.success("Logout ho gaya");
   };
@@ -40,7 +42,7 @@ export function ElectricianShell({
 
       <main className="p-4 space-y-4">{children}</main>
 
-      <nav className="fixed bottom-0 inset-x-0 border-t bg-card grid grid-cols-2">
+      <nav className="fixed bottom-0 inset-x-0 border-t bg-card grid grid-cols-3">
         {navItems.map(({ to, label, icon: Icon }) => (
           <Link
             key={to}

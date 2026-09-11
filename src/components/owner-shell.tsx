@@ -1,8 +1,8 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
-import { Home, Package, ShoppingCart, Users, ClipboardList, LogOut } from "lucide-react";
+import { Home, Package, ShoppingCart, Users, ClipboardList, LogOut, User } from "lucide-react";
 import { toast } from "sonner";
 import type { ReactNode } from "react";
 
@@ -12,16 +12,18 @@ const navItems = [
   { to: "/billing", label: "Bill", icon: ShoppingCart },
   { to: "/electricians", label: "Mistri", icon: Users },
   { to: "/settlement", label: "Hisab", icon: ClipboardList },
+  { to: "/profile", label: "Profile", icon: User },
 ];
 
 export function OwnerShell({ children, title }: { children: ReactNode; title: string }) {
   const location = useLocation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { signOut } = useAuth();
 
   const handleSignOut = async () => {
     await queryClient.cancelQueries();
-    await supabase.auth.signOut();
+    await signOut();
     // Pehle navigate karo, tabhi mounted queries unmount hongi;
     // clear() pehle karne se dashboard turant bina token ke refetch kar deta tha.
     await navigate({ to: "/auth", replace: true });
@@ -47,12 +49,12 @@ export function OwnerShell({ children, title }: { children: ReactNode; title: st
               <li key={item.to}>
                 <Link to={item.to}>
                   <div
-                    className={`flex flex-col items-center gap-1 rounded-md px-3 py-2 text-xs ${
+                    className={`flex flex-col items-center gap-1 rounded-md px-2 py-2 text-xs ${
                       active ? "text-primary" : "text-muted-foreground"
                     }`}
                   >
-                    <Icon className="h-5 w-5" />
-                    <span>{item.label}</span>
+                    <Icon className="h-4 w-4" />
+                    <span className="text-[10px]">{item.label}</span>
                   </div>
                 </Link>
               </li>

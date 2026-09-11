@@ -1,0 +1,73 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is owner
+    function isOwner() {
+      return exists(/databases/$(database)/documents/user_roles/$(request.auth.uid)_owner);
+    }
+    
+    // Helper function to check if user is electrician
+    function isElectrician() {
+      return exists(/databases/$(database)/documents/user_roles/$(request.auth.uid)_electrician);
+    }
+    
+    // Helper function to check if user has any role
+    function hasRole() {
+      return isOwner() || isElectrician();
+    }
+    
+    // Profiles - users can read their own profile, owners can read all
+    match /profiles/{userId} {
+      allow read: if request.auth != null && 
+                    (request.auth.uid == userId || isOwner());
+      allow write: if request.auth != null && 
+                     (request.auth.uid == userId || isOwner());
+    }
+    
+    // User Roles - owners can manage roles, users can read their own roles
+    match /user_roles/{roleId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && isOwner();
+    }
+    
+    // Categories - authenticated users with roles can read, owners can write
+    match /categories/{categoryId} {
+      allow read: if request.auth != null && hasRole();
+      allow create, update, delete: if request.auth != null && isOwner();
+    }
+    
+    // Products - authenticated users with roles can read, owners can write
+    match /products/{productId} {
+      allow read: if request.auth != null && hasRole();
+      allow create, update, delete: if request.auth != null && isOwner();
+    }
+    
+    // Electricians - authenticated users with roles can read, owners can write
+    match /electricians/{electricianId} {
+      allow read: if request.auth != null && hasRole();
+      allow create, update, delete: if request.auth != null && isOwner();
+    }
+    
+    // Sales - authenticated users with roles can read, owners can create
+    match /sales/{saleId} {
+      allow read: if request.auth != null && hasRole();
+      allow create: if request.auth != null && hasRole();
+      allow update, delete: if request.auth != null && isOwner();
+    }
+    
+    // Sale Items - tied to sales
+    match /sale_items/{itemId} {
+      allow read: if request.auth != null && hasRole();
+      allow create: if request.auth != null && hasRole();
+      allow update, delete: if request.auth != null && isOwner();
+    }
+    
+    // Electrician Payments - authenticated users with roles can read, owners can write
+    match /electrician_payments/{paymentId} {
+      allow read: if request.auth != null && hasRole();
+      allow create: if request.auth != null && hasRole();
+      allow update, delete: if request.auth != null && isOwner();
+    }
+  }
+}
